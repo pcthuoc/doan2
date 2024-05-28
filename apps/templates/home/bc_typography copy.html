@@ -4,8 +4,42 @@
 
 {% block stylesheets %}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<!-- CSS của Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<!-- JS của Select2 -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <style>
-    .edit-btn {
+    .list-items {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .list-items .item {
+        padding: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+
+    .list-items .item .check-icon {
+        margin-right: 8px;
+    }
+
+    .list-items .item.selected {
+        background-color: #e0e0e0;
+        /* Màu nền cho mục được chọn */
+        color: #ff0000;
+        /* Màu chữ cho mục được chọn */
+    }
+
+    .edit-btn,
+    .edit-btn1 {
         color: #26af5d;
         /* Màu xanh lá cây cho nút chỉnh sửa */
         font-size: 1.2em;
@@ -21,7 +55,8 @@
         text-decoration: none;
     }
 
-    .edit-btn:hover {
+    .edit-btn,
+    .edit-btn1:hover {
         color: #26af5d71;
         /* Màu xanh lá cây đậm hơn khi hover */
     }
@@ -54,7 +89,6 @@
             </div>
         </div>
         <div class="row">
-            <!-- [ basic-table ] start -->
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
@@ -87,16 +121,18 @@
                                         </td>
                                         <td>{{ hengio.time }}</td>
                                         <td>{{ hengio.days_of_week }}</td>
-										<td>
-											<a href="#" class="edit-btn" data-id="{{ hengio.id }}"
-												data-name="{{ hengio.name }}" data-status="{{ hengio.status }}"
-												data-time="{{ hengio.time }}" data-days="{{ hengio.days_of_week }}">
-												<i class="fas fa-edit"></i>
-											</a>
-											<a href="#" class="delete-btn" onclick="removeItemHengio('{{ hengio.id }}')">
-												<i class="fas fa-trash-alt"></i>
-											</a>
-										</td>
+                                        <td>
+                                            <a href="#" class="edit-btn" data-id="{{ hengio.id }}"
+                                                data-name="{{ hengio.name }}" data-status="{{ hengio.status }}"
+                                                data-time="{{ hengio.time }}" data-days="{{ hengio.days_of_week }}"
+                                                data-pin="{{ hengio.pin }}">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="#" class="delete-btn"
+                                                onclick="removeItemHengio('{{ hengio.id }}')">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -105,8 +141,6 @@
                     </div>
                 </div>
             </div>
-            <!-- [ basic-table ] end -->
-            <!-- [ inverse-table ] start -->
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
@@ -147,17 +181,23 @@
                                         </td>
                                         <td>{{ setnguong.time }}</td>
                                         <td>{{ setnguong.days_of_week }}</td>
-										<td>
-											<a href="#" class="edit-btn" data-id="{{ setnguong.id }}"
-												data-name="{{ setnguong.sensor_name }}" data-threshold="{{ setnguong.compare_value }}"
-												data-status="{{ setnguong.status }}" data-time="{{ setnguong.time }}"
-												data-days="{{ setnguong.days_of_week }}">
-												<i class="fas fa-edit"></i>
-											</a>
-											<a href="#" class="delete-btn" onclick="removeItemSetnguong('{{ setnguong.id }}')">
-												<i class="fas fa-trash-alt"></i>
-											</a>
-										</td>
+                                        <td>
+                                            <a href="#" class="edit-btn1" data-id="{{ setnguong.id }}"
+                                                data-namesensor="{{ setnguong.sensor_name }}"
+                                                data-pinsensor="{{ setnguong.sensor_pin }}"
+                                                data-namerelay="{{ setnguong.relay_name }}"
+                                                data-pinrelay="{{ setnguong.relay_pin }}"
+                                                data-compare="{{ setnguong.compare }}"
+                                                data-comparevalue="{{ setnguong.compare_value }}"
+                                                data-status="{{ setnguong.status }}" data-time="{{ setnguong.time }}"
+                                                data-days="{{ setnguong.days_of_week }}">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="#" class="delete-btn"
+                                                onclick="removeItemSetnguong('{{ setnguong.id }}')">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -166,80 +206,179 @@
                     </div>
                 </div>
             </div>
-            <!-- [ inverse-table ] end -->
         </div>
     </div>
 </div>
 
 <!-- Modal for creating new schedule -->
-<div class="modal fade" id="CreateFormModalNguong" tabindex="-1" aria-labelledby="FormModalLabelNguong"
-    aria-hidden="true">
+<div class="modal fade" id="CreateFormModalGio" tabindex="-1" aria-labelledby="FormModalLabelGio" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="FormModalLabelNguong">Cài đặt ngưỡng</h5>
+                <h5 class="modal-title" id="FormModalLabelGio">Cài đặt hẹn giờ</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="create-form-nguong" action="" method="post">
+                <form id="create-form-gio" action="{% url 'addgio' %}" method="post">
                     {% csrf_token %}
-                    <input type="hidden" name="id" id="nguong-id">
-                    <div class="mb-3">
-                        <label for="recipient-name" class="col-form-label">Tên sensor:</label>
-                        <select class="form-select" name="sensor" id="sensor">
-                            {% for sensor in sensors %}
-                            <option value="{{ sensor.id }}" data-api="{{ sensor.api_key }}"
-                                data-name="{{ sensor.name }}" data-pin="{{ sensor.pin }}">{{ sensor.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="compare" class="col-form-label">Trạng thái:</label>
-                        <select class="form-select" name="compare" id="compare">
-                            <option value="1">Lớn hơn hoặc bằng</option>
-                            <option value="2">Nhỏ hơn hoặc bằng</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="compare_value" class="col-form-label">Giá trị so sánh:</label>
-                        <input type="text" class="form-control" name="compare_value" id="compare_value">
-                    </div>
                     <div class="mb-3">
                         <label for="relay" class="col-form-label">Tên relay:</label>
                         <select class="form-select" name="relay" id="relay">
                             {% for relay in relays %}
-                            <option value="{{ relay.id }}" data-api="{{ relay.api_key }}"
-                                data-name="{{ relay.name }}" data-pin="{{ relay.pin }}">{{ relay.name }}</option>
+                            <option value="{{ relay.name }}" data-api="{{ relay.api_key }}" data-name="{{ relay.name }}"
+                                data-pin="{{ relay.pin }}">
+                                {{ relay.name }}
+                            </option>
                             {% endfor %}
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="status1" class="col-form-label">Trạng thái:</label>
-                        <select class="form-select" name="status1" id="status1">
+                        <label for="status" class="col-form-label">Trạng thái:</label>
+                        <select class="form-select" name="status" id="status">
                             <option value="1">Bật</option>
                             <option value="2">Tắt</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="trigger_time1" class="col-form-label">Thời gian kích hoạt:</label>
-                        <input type="text" class="form-control flatpickr-time" name="trigger_time1" id="trigger_time1"
+                        <label for="trigger_time" class="col-form-label">Thời gian kích hoạt:</label>
+                        <input type="text" class="form-control flatpickr-time" name="trigger_time" id="trigger_time"
                             autocomplete="off">
                     </div>
                     <div class="mb-3">
-                        <label for="days_of_week1" class="col-form-label">Chọn các ngày trong tuần:</label>
-                        {% include 'includes/checkbox_days_of_week.html' with name="days_of_week1" %}
+                        <label for="days_of_week" class="col-form-label">Chọn các ngày trong tuần:</label>
+                        <div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="0"
+                                    id="days_of_week0">
+                                <label class="form-check-label" for="days_of_week0">Hai</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="1"
+                                    id="days_of_week1">
+                                <label class="form-check-label" for="days_of_week1">Ba</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="2"
+                                    id="days_of_week2">
+                                <label class="form-check-label" for="days_of_week2">Tư</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="3"
+                                    id="days_of_week3">
+                                <label class="form-check-label" for="days_of_week3">Năm</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="4"
+                                    id="days_of_week4">
+                                <label class="form-check-label" for="days_of_week4">Sáu</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="5"
+                                    id="days_of_week5">
+                                <label class="form-check-label" for="days_of_week5">Bảy</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="6"
+                                    id="days_of_week6">
+                                <label class="form-check-label" for="days_of_week6">Chủ Nhật</label>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer" id="ModalFooterNguong">
+            <div class="modal-footer" id="ModalFooterGio">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <button type="button" class="btn btn-warning" id="submit-form-nguong">Thêm</button>
+                <button type="button" class="btn btn-warning" id="submit-form-gio">Thêm</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal for creating new threshold -->
+<!-- Modal for editing schedule -->
+<div class="modal fade" id="EditFormModalGio" tabindex="-1" aria-labelledby="EditFormModalLabelGio" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="EditFormModalLabelGio">Chỉnh sửa hẹn giờ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-form-gio" method="post" action="{% url 'edit_gio'%}">
+                    {% csrf_token %}
+                    <input type="hidden" name="id">
+                    <input type="hidden" name="pin">
+                    <div class="mb-3">
+                        <label for="edit-recipient-name" class="col-form-label">Tên relay:</label>
+                        <select class="form-select" name="relay" id="edit-relay">
+                            {% for relay in relays %}
+                            <option value="{{ relay.id }}" data-api="{{ relay.api_key }}" data-name="{{ relay.name }}"
+                                data-pin="{{ relay.pin }}">{{ relay.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-status" class="col-form-label">Trạng thái:</label>
+                        <select class="form-select" name="status" id="edit-status">
+                            <option value="1">Bật</option>
+                            <option value="2">Tắt</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-trigger_time" class="col-form-label">Thời gian kích hoạt:</label>
+                        <input type="text" class="form-control flatpickr-time" name="trigger_time"
+                            id="edit-trigger_time" autocomplete="off">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-days_of_week" class="col-form-label">Chọn các ngày trong tuần:</label>
+                        <div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="0"
+                                    id="edit_days_of_week0">
+                                <label class="form-check-label" for="edit_days_of_week0">Hai</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="1"
+                                    id="edit_days_of_week1">
+                                <label class="form-check-label" for="edit_days_of_week1">Ba</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="2"
+                                    id="edit_days_of_week2">
+                                <label class="form-check-label" for="edit_days_of_week2">Tư</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="3"
+                                    id="edit_days_of_week3">
+                                <label class="form-check-label" for="edit_days_of_week3">Năm</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="4"
+                                    id="edit_days_of_week4">
+                                <label class="form-check-label" for="edit_days_of_week4">Sáu</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="5"
+                                    id="edit_days_of_week5">
+                                <label class="form-check-label" for="edit_days_of_week5">Bảy</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="6"
+                                    id="edit_days_of_week6">
+                                <label class="form-check-label" for="edit_days_of_week6">Chủ Nhật</label>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer" id="EditModalFooterGio">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-warning" id="submit-edit-form-gio">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="CreateFormModalNguong" tabindex="-1" aria-labelledby="FormModalLabelNguong"
     aria-hidden="true">
     <div class="modal-dialog">
@@ -272,11 +411,11 @@
                         <input type="text" class="form-control" name="compare_value" id="compare_value">
                     </div>
                     <div class="mb-3">
-                        <label for="relay" class="col-form-label">Tên relay:</label>
-                        <select class="form-select" name="relay" id="relay">
+                        <label for="edit-recipient-name" class="col-form-label">Tên relay:</label>
+                        <select class="form-select" name="relay" id="edit-relay">
                             {% for relay in relays %}
-                            <option value="{{ relay.id }}" data-api="{{ relay.api_key }}"
-                                data-name="{{ relay.name }}" data-pin="{{ relay.pin }}">{{ relay.name }}</option>
+                            <option value="{{ relay.id }}" data-api="{{ relay.api_key }}" data-name="{{ relay.name }}"
+                                data-pin="{{ relay.pin }}">{{ relay.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -293,16 +432,44 @@
                             autocomplete="off">
                     </div>
                     <div class="mb-3">
-                        <label for="days_of_week1" class="col-form-label">Ngày trong tuần:</label>
-                        <select class="form-select" name="days_of_week1" id="days_of_week1" multiple>
-                            <option value="0">Thứ Hai</option>
-                            <option value="1">Thứ Ba</option>
-                            <option value="2">Thứ Tư</option>
-                            <option value="3">Thứ Năm</option>
-                            <option value="4">Thứ Sáu</option>
-                            <option value="5">Thứ Bảy</option>
-                            <option value="6">Chủ Nhật</option>
-                        </select>
+                        <label for="edit-days_of_week" class="col-form-label">Chọn các ngày trong tuần:</label>
+                        <div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="0"
+                                    id="edit_days_of_week0">
+                                <label class="form-check-label" for="edit_days_of_week0">Hai</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="1"
+                                    id="edit_days_of_week1">
+                                <label class="form-check-label" for="edit_days_of_week1">Ba</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="2"
+                                    id="edit_days_of_week2">
+                                <label class="form-check-label" for="edit_days_of_week2">Tư</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="3"
+                                    id="edit_days_of_week3">
+                                <label class="form-check-label" for="edit_days_of_week3">Năm</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="4"
+                                    id="edit_days_of_week4">
+                                <label class="form-check-label" for="edit_days_of_week4">Sáu</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="5"
+                                    id="edit_days_of_week5">
+                                <label class="form-check-label" for="edit_days_of_week5">Bảy</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="6"
+                                    id="edit_days_of_week6">
+                                <label class="form-check-label" for="edit_days_of_week6">Chủ Nhật</label>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -313,157 +480,409 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="EditFormModalNguong" tabindex="-1" aria-labelledby="FormModalLabelEditNguong"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="FormModalLabelEditNguong">Chỉnh sửa ngưỡng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-form-nguong" method="post" action="{% url 'edit_nguong'%}">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" id="nguong_id" value="{{ nguong.id }}">
+                    <div class="mb-3">
+                        <label for="recipient-name" class="col-form-label">Tên sensor:</label>
+                        <select class="form-select" name="sensor" id="sensor">
+                            {% for sensor in sensors %}
+                            <option value="{{ sensor.id }}" data-api="{{ sensor.api_key }}"
+                                data-name="{{ sensor.name }}" data-pin="{{ sensor.pin }}">{{ sensor.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="compare" class="col-form-label">Trạng thái:</label>
+                        <select class="form-select" name="compare" id="compare">
+                            <option value="1">Lớn hơn hoặc bằng</option>
+                            <option value="2">Nhỏ hơn hoặc bằng</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="compare_value" class="col-form-label">Giá trị so sánh:</label>
+                        <input type="text" class="form-control" name="compare_value" id="compare_value">
+                    </div>
+                    <div class="mb-3">
+                        <label for="relay" class="col-form-label">Tên relay:</label>
+                        <select class="form-select" name="relay" id="relay">
+                            {% for relay in relays %}
+                            <option value="{{ relay.id }}" data-api="{{ relay.api_key }}" data-name="{{ relay.name }}"
+                                data-pin="{{ relay.pin }}">{{ relay.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status1" class="col-form-label">Trạng thái:</label>
+                        <select class="form-select" name="status1" id="status1">
+                            <option value="1">Bật</option>
+                            <option value="2">Tắt</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="trigger_time1" class="col-form-label">Thời gian kích hoạt:</label>
+                        <input type="text" class="form-control flatpickr-time" name="trigger_time1" id="trigger_time1"
+                            autocomplete="off">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-days_of_week" class="col-form-label">Chọn các ngày trong tuần:</label>
+                        <div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="0"
+                                    id="edit_days_of_week0">
+                                <label class="form-check-label" for="edit_days_of_week0">Hai</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="1"
+                                    id="edit_days_of_week1">
+                                <label class="form-check-label" for="edit_days_of_week1">Ba</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="2"
+                                    id="edit_days_of_week2">
+                                <label class="form-check-label" for="edit_days_of_week2">Tư</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="3"
+                                    id="edit_days_of_week3">
+                                <label class="form-check-label" for="edit_days_of_week3">Năm</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="4"
+                                    id="edit_days_of_week4">
+                                <label class="form-check-label" for="edit_days_of_week4">Sáu</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="5"
+                                    id="edit_days_of_week5">
+                                <label class="form-check-label" for="edit_days_of_week5">Bảy</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="6"
+                                    id="edit_days_of_week6">
+                                <label class="form-check-label" for="edit_days_of_week6">Chủ Nhật</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" id="ModalFooterEditNguong">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-warning" id="submit-form-edit-nguong">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock content %}
 
 {% block javascripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-$(document).ready(function () {
-    // Function to populate form for editing
-    function populateForm(data, formId) {
-        $(`${formId} #gio-id`).val(data.id);
-        $(`${formId} #relay`).val(data.relay).change();
-        $(`${formId} #status`).val(data.status).change();
-        $(`${formId} #trigger_time`).val(data.trigger_time);
-        const daysOfWeek = data.days_of_week.split(',');
-        daysOfWeek.forEach(day => {
-            $(`${formId} #days_of_week_${day}`).prop('checked', true);
-        });
-    }
-
-    $("#submit-form-gio").click(function () {
-        const formId = '#create-form-gio';
-        var csrfToken = $(`${formId} [name=csrfmiddlewaretoken]`).val();
-        var daysOfWeek = [];
-        $(`${formId} input[name="days_of_week"]:checked`).each(function() {
-            daysOfWeek.push($(this).val());
-        });
-        var daysOfWeekString = daysOfWeek.join(',');
-
-        var formData = {
-            'id': $(`${formId} #gio-id`).val(),
-            'name': $(`${formId} #relay option:selected`).data('name'),
-            'api_key': $(`${formId} #relay option:selected`).data('api'),
-            'pin': $(`${formId} #relay option:selected`).data('pin'),
-            'status': $(`${formId} #status`).val(),
-            'trigger_time': $(`${formId} #trigger_time`).val(),
-            'days_of_week': daysOfWeekString,
-            'csrfmiddlewaretoken': csrfToken
-        };
-
-        const actionUrl = formData.id ? `{% url 'editgio' %}` : `{% url 'addgio' %}`;
-        
-        $.ajax({
-            type: 'POST',
-            url: actionUrl,
-            data: formData,
-            success: function (data) {
-                window.location.href = "/scene";
-            },
-            error: function (xhr, textStatus, errorThrown) {
-                console.log('Error:', errorThrown);
-            }
-        });
-    });
-
-    $("#submit-form-nguong").click(function () {
-        const formId = '#create-form-nguong';
-        var csrfToken = $(`${formId} [name=csrfmiddlewaretoken]`).val();
-        var daysOfWeek = [];
-        $(`${formId} input[name="days_of_week1"]:checked`).each(function() {
-            daysOfWeek.push($(this).val());
-        });
-        var daysOfWeekString = daysOfWeek.join(',');
-
-        var formData = {
-            'id': $(`${formId} #nguong-id`).val(),
-            'sensor_pin': $(`${formId} #sensor option:selected`).data('pin'),
-            'sensor_name': $(`${formId} #sensor option:selected`).data('name'),
-            'relay_name': $(`${formId} #relay option:selected`).data('name'),
-            'relay_pin': $(`${formId} #relay option:selected`).data('pin'),
-            'api_key': $(`${formId} #relay option:selected`).data('api'),
-            'compare': $(`${formId} #compare`).val(),
-            'compare_value': $(`${formId} #compare_value`).val(),
-            'status': $(`${formId} #status1`).val(),
-            'trigger_time1': $(`${formId} #trigger_time1`).val(),
-            'days_of_week': daysOfWeekString,
-            'csrfmiddlewaretoken': csrfToken
-        };
-
-        const actionUrl = formData.id ? `{% url 'editnguong' %}` : `{% url 'addnguong' %}`;
-        
-        $.ajax({
-            type: 'POST',
-            url: actionUrl,
-            data: formData,
-            success: function (data) {
-                window.location.href = "/scene";
-            },
-            error: function (xhr, textStatus, errorThrown) {
-                console.log('Error:', errorThrown);
-            }
-        });
-    });
-
-    // Function to handle the remove item action for Hengio
-    window.removeItemHengio = function (id) {
-        if (confirm('Bạn có chắc chắn muốn xóa mục này?')) {
-            fetch(`/delete-hengio/${id}/`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('Đã xóa thành công!');
-                    location.reload();
-                } else {
-                    alert('Xóa thất bại!');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Xóa thất bại!');
+    $(document).ready(function () {
+        $("#submit-form-gio").click(function () {
+            var csrfToken = $('[name=csrfmiddlewaretoken]').val();
+            var daysOfWeek = [];
+            $('input[name="days_of_week"]:checked').each(function () {
+                daysOfWeek.push($(this).val());
             });
-        }
-    }
+            var daysOfWeekString = daysOfWeek.join(',');
 
-    // Function to handle the remove item action for Setnguong
-    window.removeItemSetnguong = function (id) {
-        if (confirm('Bạn có chắc chắn muốn xóa mục này?')) {
-            fetch(`/delete-setnguong/${id}/`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
+            var formData = {
+                'name': $('#relay option:selected').data('name'),
+                'api_key': $('#relay option:selected').data('api'),
+                'pin': $('#relay option:selected').data('pin'),
+                'status': $('#status').val(),
+                'trigger_time': $('#trigger_time').val(),
+                'days_of_week': daysOfWeekString,
+                'csrfmiddlewaretoken': csrfToken
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "addgio" %}',
+                data: formData,
+                success: function (data) {
+                    window.location.href = "/scene";
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error:', errorThrown);
                 }
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('Đã xóa thành công!');
-                    location.reload();
-                } else {
-                    alert('Xóa thất bại!');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Xóa thất bại!');
             });
-        }
-    }
+        });
+        $("#submit-form-nguong").click(function () {
+            var csrfToken = $('[name=csrfmiddlewaretoken]').val();
+            var daysOfWeek = [];
+            $('input[name="days_of_week"]:checked').each(function () {
+                daysOfWeek.push($(this).val());
+            });
+            var daysOfWeekString = daysOfWeek.join(',');
 
-    flatpickr(".flatpickr-time", {
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "H:i",
-        time_24hr: true,
-        static: true
+            var formData = {
+                'sensor_pin': $('#sensor option:selected').data('pin'),
+                'sensor_name': $('#sensor option:selected').data('name'),
+                'relay_name': $('#relay option:selected').data('name'),
+                'relay_pin': $('#relay option:selected').data('pin'),
+                'api_key': $('#relay option:selected').data('api'),
+                'compare': $('#compare').val(),
+                'compare_value': $('#compare_value').val(),
+                'status': $('#status1').val(),
+                'trigger_time1': $('#trigger_time1').val(),
+                'days_of_week': daysOfWeekString,
+                'csrfmiddlewaretoken': csrfToken
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "addnguong" %}',
+                data: formData,
+                success: function (data) {
+                    window.location.href = "/scene";
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error:', errorThrown);
+                }
+            });
+        });
+
+        window.removeItemHengio = function (id) {
+            if (confirm('Bạn có chắc chắn muốn xóa mục này?')) {
+                fetch(`/delete-hengio/${id}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Đã xóa thành công!');
+                            location.reload();
+                        } else {
+                            alert('Xóa thất bại!');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Xóa thất bại!');
+                    });
+            }
+        }
+        window.removeItemSetnguong = function (id) {
+            if (confirm('Bạn có chắc chắn muốn xóa mục này?')) {
+                fetch(`/delete-setnguong/${id}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Đã xóa thành công!');
+                            location.reload();
+                        } else {
+                            alert('Xóa thất bại!');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Xóa thất bại!');
+                    });
+            }
+        }
+
+
     });
-});
+    $(document).ready(function () {
+        $('.edit-btn').click(function () {
+            var id = $(this).data('id');
+            var name = $(this).data('name');
+            var status = $(this).data('status');
+            var time = $(this).data('time');
+            var days = $(this).data('days').split(',');
+            var pin = $(this).data('pin');
+            console.log(days);
+
+            fillEditForm(id, name, status, time, days, pin);
+            $('#EditFormModalGio').modal('show');
+        });
+
+        function fillEditForm(id, name, status, time, days, pin) {
+            $('#EditFormModalGio').find('input[name="id"]').val(id);
+            $('#EditFormModalGio').find('input[name="pin"]').val(pin);
+            $('#EditFormModalGio').find('select[name="relay"]').val(name);
+            $('#EditFormModalGio').find('select[name="status"]').val(status);
+            $('#EditFormModalGio').find('input[name="trigger_time"]').flatpickr({
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "H:i",
+                time_24hr: true,
+                defaultDate: time ,// Set the default time
+                minuteIncrement: 1
+            });
+            $('#EditFormModalGio').find('select[name="relay"] option').each(function () {
+                if ($(this).data('pin') == pin) {
+                    $(this).prop('selected', true);
+                }
+            });
+
+
+            $('#EditFormModalGio').find('input[name="days_of_week"]').prop('checked', false);
+
+            for (let i = 0; i < days.length; i++) {
+                var checkbox = $('#EditFormModalGio').find('input[name="days_of_week"][value="' + i + '"]');
+                checkbox.prop('checked', true);
+            }
+        }
+
+        $('#submit-edit-form-gio').click(function () {
+
+            var daysOfWeek = [];
+            $('#EditFormModalGio').find('input[name="days_of_week"]:checked').each(function () {
+                daysOfWeek.push($(this).val());
+            });
+            var daysOfWeekString = daysOfWeek.join(',');
+
+            var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+
+
+            var formData = {
+                'id': $('#EditFormModalGio').find('input[name="id"]').val(),
+                'name': $('#EditFormModalGio').find('select[name="relay"] option:selected').data('name'),
+                'api_key': $('#EditFormModalGio').find('select[name="relay"] option:selected').data('api'),
+                'pin': $('#EditFormModalGio').find('select[name="relay"] option:selected').data('pin'),
+                'status': $('#EditFormModalGio').find('select[name="status"]').val(),
+                'trigger_time': $('#EditFormModalGio').find('input[name="trigger_time"]').val(),
+                'days_of_week': daysOfWeekString,
+                'csrfmiddlewaretoken': csrfToken
+            };
+
+            console.log(formData);
+
+
+            $.ajax({
+                type: "POST",
+                url: $('#edit-form-gio').attr('action'),
+                data: formData,
+                success: function (response) {
+                    window.location.href = "/scene";
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error:', errorThrown);
+                }
+            });
+        });
+    });
+    $(document).ready(function () {
+        $('.edit-btn1').click(function () {
+            var id = $(this).data('id');
+            var namesensor = $(this).data('namesensor');
+            var pinsensor = $(this).data('pinsensor');
+            var namerelay = $(this).data('namerelay');
+            var pinrelay = $(this).data('pinrelay');
+            var compare = $(this).data('compare');
+            var comparevalue = $(this).data('comparevalue');
+            var status = $(this).data('status');
+            var time = $(this).data('time');
+            var days = $(this).data('days').split(',');
+
+            console.log(pinrelay);
+
+            fillEditForm(id, namesensor, pinsensor, namerelay, pinrelay, compare, comparevalue, status, time, days);
+            $('#EditFormModalNguong').modal('show');
+        });
+
+        function fillEditForm(id, namesensor, pinsensor, namerelay, pinrelay, compare, comparevalue, status, time, days) {
+            $('#EditFormModalNguong').find('input[name="id"]').val(id);
+            $('#EditFormModalNguong').find('input[name="pinsensor"]').val(pinsensor);
+            $('#EditFormModalNguong').find('select[name="sensor"]').val(namesensor);
+            $('#EditFormModalNguong').find('select[name="compare"]').val(compare);
+            $('#EditFormModalNguong').find('input[name="compare_value"]').val(comparevalue);
+            $('#EditFormModalNguong').find('select[name="relay"]').val(namerelay);
+            $('#EditFormModalNguong').find('select[name="status1"]').val(status);
+            $('#EditFormModalNguong').find('input[name="trigger_time1"]').flatpickr({
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "H:i",
+                time_24hr: true,
+                defaultDate: time, // Set the default time
+                minuteIncrement: 1
+            });
+            $('#EditFormModalNguong').find('select[name="relay"] option').each(function () {
+                if ($(this).data('pin') == pinrelay) {
+                    $(this).prop('selected', true);
+                }
+            });
+            $('#EditFormModalNguong').find('select[name="sensor"] option').each(function () {
+                if ($(this).data('pin') == pinsensor) {
+                    $(this).prop('selected', true);
+                }
+            });
+            // Reset all days checkboxes
+            $('#EditFormModalNguong').find('input[name="days_of_week"]').prop('checked', false);
+
+            // Set the checkboxes for the selected days
+            for (let i = 0; i < days.length; i++) {
+                var checkbox = $('#EditFormModalNguong').find('input[name="days_of_week"][value="' + i + '"]');
+                checkbox.prop('checked', true);
+            }
+        }
+
+        $('#submit-form-edit-nguong').click(function () {
+            // Collecting days of the week
+            var daysOfWeek = [];
+            $('#EditFormModalNguong').find('input[name="days_of_week"]:checked').each(function () {
+                daysOfWeek.push($(this).val());
+            });
+            var daysOfWeekString = daysOfWeek.join(',');
+
+            // Collecting CSRF token
+            var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+
+            // Collecting form data
+            var formData = {
+                'id': $('#EditFormModalNguong').find('input[name="id"]').val(),
+                'sensor_pin':$('#EditFormModalNguong').find('select[name="sensor"] option:selected').data('pin'),
+                'sensor_name': $('#EditFormModalNguong').find('select[name="sensor"] option:selected').data('name'),
+                'relay_name': $('#EditFormModalNguong').find('select[name="relay"] option:selected').data('name'),
+                'relay_pin': $('#EditFormModalNguong').find('select[name="relay"] option:selected').data('pin'),
+                'api_key': $('#EditFormModalNguong').find('select[name="relay"] option:selected').data('api'),
+                'compare': $('#EditFormModalNguong').find('select[name="compare"]').val(),
+                'compare_value': $('#EditFormModalNguong').find('input[name="compare_value"]').val(),
+                'status': $('#EditFormModalNguong').find('select[name="status1"]').val(),
+                'trigger_time': $('#EditFormModalNguong').find('input[name="trigger_time1"]').val(),
+                'days_of_week': daysOfWeekString,
+                'csrfmiddlewaretoken': csrfToken
+            };
+
+            // Displaying form data in console
+            console.log(formData);
+
+            $.ajax({
+                type: "POST",
+                url: $('#edit-form-nguong').attr('action'),
+                data: formData,
+                success: function(response) {
+                    window.location.href = "/scene";
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error:', errorThrown);
+                }
+            });
+        });
+    });
 
 </script>
 
@@ -473,7 +892,9 @@ $(document).ready(function () {
         noCalendar: true,
         dateFormat: "H:i",
         time_24hr: true,
-        static: true
+        static: true,
+        minuteIncrement: 1 // Set minute increment to 1
     });
 </script>
+
 {% endblock javascripts %}

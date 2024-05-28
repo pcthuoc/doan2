@@ -6,6 +6,8 @@ from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler.schedulers.blocking import BlockingScheduler
 import time
 
+from jobs.task import check_hengio_tasks
+
 django.setup()
 
 logger = logging.getLogger(__name__)
@@ -26,12 +28,12 @@ def create_scheduler():
     scheduler = BlockingScheduler(jobstores=jobstores,
                                   executors=executors,
                                   job_defaults=job_defaults,
-                                  timezone="UTC")
+                                  timezone="Asia/Ho_Chi_Minh")
     return scheduler
 
 
 def config_job(scheduler):
-    scheduler.add_job(schedule_complete_event, 'interval', seconds=15)
+    scheduler.add_job(schedule_complete_event, 'interval', seconds=5)
     return scheduler
 
 
@@ -54,3 +56,4 @@ def schedule_complete_event():
     # Auto start event
     epoch_time_now = int((datetime.now() - datetime(1970, 1, 1)).total_seconds())
     print('Time: ', epoch_time_now)
+    check_hengio_tasks()

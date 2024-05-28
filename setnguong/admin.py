@@ -5,7 +5,8 @@ from django.contrib.admin.widgets import AdminTimeWidget
 from setnguong.models import Setnguong
 # Register your models here.
 class SetNguongForm(forms.ModelForm):
-    time = forms.TimeField(widget=AdminTimeWidget(format='%H:%M'))
+    start_time = forms.TimeField(widget=AdminTimeWidget(format='%H:%M'))
+    off_time = forms.TimeField(widget=AdminTimeWidget(format='%H:%M'))
 
     class Meta:
         model = Setnguong

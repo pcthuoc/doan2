@@ -6,6 +6,8 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 <!-- CSS của Select2 -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <!-- JS của Select2 -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -153,7 +155,8 @@
                                         <th scope="col">Tên Sensor</th>
                                         <th scope="col">Ngưỡng</th>
                                         <th scope="col">Trạng thái</th>
-                                        <th scope="col">Thời gian</th>
+                                        <th scope="col">Thời gian bắt đầu</th>
+                                        <th scope="col">Thời gian kết thúc</th>
                                         <th scope="col">Ngày</th>
                                         <th scope="col">Thao tác</th>
                                     </tr>
@@ -177,7 +180,8 @@
                                             Tắt
                                             {% endif %}
                                         </td>
-                                        <td>{{ setnguong.time }}</td>
+                                        <td>{{ setnguong.start_time }}</td>
+                                        <td>{{ setnguong.off_time }}</td>
                                         <td>{{ setnguong.days_of_week }}</td>
                                         <td>
                                             <a href="#" class="edit-btn1" data-id="{{ setnguong.id }}"
@@ -187,7 +191,9 @@
                                                 data-pinrelay="{{ setnguong.relay_pin }}"
                                                 data-compare="{{ setnguong.compare }}"
                                                 data-comparevalue="{{ setnguong.compare_value }}"
-                                                data-status="{{ setnguong.status }}" data-time="{{ setnguong.time }}"
+                                                data-status="{{ setnguong.status }}" 
+                                                data-start_time="{{ setnguong.start_time }}"
+                                                data-off_time="{{ setnguong.off_time }}"
                                                 data-days="{{ setnguong.days_of_week }}">
                                                 <i class="fas fa-edit"></i>
                                             </a>
@@ -727,7 +733,8 @@
                 noCalendar: true,
                 dateFormat: "H:i",
                 time_24hr: true,
-                defaultDate: time // Set the default time
+                defaultDate: time ,// Set the default time
+                minuteIncrement: 1
             });
             $('#EditFormModalGio').find('select[name="relay"] option').each(function () {
                 if ($(this).data('pin') == pin) {
@@ -814,7 +821,8 @@
                 noCalendar: true,
                 dateFormat: "H:i",
                 time_24hr: true,
-                defaultDate: time // Set the default time
+                defaultDate: time, // Set the default time
+                minuteIncrement: 1
             });
             $('#EditFormModalNguong').find('select[name="relay"] option').each(function () {
                 if ($(this).data('pin') == pinrelay) {

@@ -33,7 +33,8 @@ class Setnguong(models.Model):
     compare_value = models.CharField(max_length=3, help_text="Compare value")
     status = models.IntegerField(choices=VALUE_TYPE_CHOICES, default=ON, help_text="Type")
     value = models.IntegerField(choices=VALUE_TYPE_CHOICES, default=ON, help_text="Type")
-    time = models.TimeField(help_text="Time to trigger the event")
+    start_time = models.TimeField(help_text="Time to trigger the event")
+    off_time = models.TimeField(help_text="Time to trigger the event")
     days_of_week = MultiSelectField(
         choices=DAYS_OF_WEEK_CHOICES,
         default=[0, 1, 2, 3, 4, 5, 6],
@@ -50,7 +51,7 @@ class Setnguong(models.Model):
         return ", ".join([days_mapping[day] for day in self.days_of_week])
 
     def __str__(self):
-        return f"{self.sensor_name} - {self.get_value_display()} at {self.time} on {self.get_days_of_week_display()}"
+        return f"{self.sensor_name} - {self.get_value_display()} at {self.start_time} on {self.get_days_of_week_display()}"
 
     class Meta:
         verbose_name_plural = "Setnguong"
