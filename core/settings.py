@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'import_export',
     'hengio',
     'setnguong',
-    'backend'
+    'backend',
+    'jobs'
 ]
 
 MIDDLEWARE = [
