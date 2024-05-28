@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
     <title>
@@ -17,8 +18,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="description" content="DashboardKit is made using Bootstrap 5 design framework. Download the free admin template & use it for your project.">
-    <meta name="keywords" content="DashboardKit, Dashboard Kit, Dashboard UI Kit, Bootstrap 5, Admin Template, Admin Dashboard, CRM, CMS, Free Bootstrap Admin Template">
+    <meta name="description"
+        content="DashboardKit is made using Bootstrap 5 design framework. Download the free admin template & use it for your project.">
+    <meta name="keywords"
+        content="DashboardKit, Dashboard Kit, Dashboard UI Kit, Bootstrap 5, Admin Template, Admin Dashboard, CRM, CMS, Free Bootstrap Admin Template">
     <meta name="author" content="DashboardKit ">
 
     <!-- Favicon icon -->
@@ -33,35 +36,62 @@
     <link rel="stylesheet" href="/static/assets/css/style.css" id="main-style-link">
 
     <!-- Specific CSS goes HERE -->
-    {% block stylesheets %}{% endblock stylesheets %}
+    {% block stylesheets %}
+    <style>
+        .days-of-week-container {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .days-of-week-container .form-check {
+            margin-right: 10px;
+            position: relative;
+        }
+
+        .day-label {
+            display: inline-block;
+            padding: 10px;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            transition: border-color 0.3s;
+        }
+
+        .form-check-input:checked+.day-label {
+            border-color: #007bff;
+        }
+    </style>
+    {% endblock stylesheets %}
 
 </head>
+
 <body class="">
 
-	{% include 'includes/preloader.html' %}
+    {% include 'includes/preloader.html' %}
 
-	<!-- [ Mobile header ] start -->
-	<div class="pc-mob-header pc-header">
-		<div class="pcm-logo">
-			<img src="/static/assets/images/logo.svg" alt="" class="logo logo-lg">
-		</div>
-		<div class="pcm-toolbar">
-			<a href="#!" class="pc-head-link" id="mobile-collapse">
-				<div class="hamburger hamburger--arrowturn">
-					<div class="hamburger-box">
-						<div class="hamburger-inner"></div>
-					</div>
-				</div>
-			</a>
-			<a href="#!" class="pc-head-link" id="headerdrp-collapse">
-				<i data-feather="align-right"></i>
-			</a>
-			<a href="#!" class="pc-head-link" id="header-collapse">
-				<i data-feather="more-vertical"></i>
-			</a>
-		</div>
-	</div>
-	<!-- [ Mobile header ] End -->
+    <!-- [ Mobile header ] start -->
+    <div class="pc-mob-header pc-header">
+        <div class="pcm-logo">
+            <img src="/static/assets/images/logo.svg" alt="" class="logo logo-lg">
+        </div>
+        <div class="pcm-toolbar">
+            <a href="#!" class="pc-head-link" id="mobile-collapse">
+                <div class="hamburger hamburger--arrowturn">
+                    <div class="hamburger-box">
+                        <div class="hamburger-inner"></div>
+                    </div>
+                </div>
+            </a>
+            <a href="#!" class="pc-head-link" id="headerdrp-collapse">
+                <i data-feather="align-right"></i>
+            </a>
+            <a href="#!" class="pc-head-link" id="header-collapse">
+                <i data-feather="more-vertical"></i>
+            </a>
+        </div>
+    </div>
+    <!-- [ Mobile header ] End -->
 
     {% include 'includes/sidebar.html' %}
 
@@ -69,15 +99,13 @@
 
     {% block content %}{% endblock content %}
 
-    <!--
-    {% include 'includes/promo-fixed-button.html' %}
-    -->
-    
+
+
     {% include 'includes/scripts.html' %}
 
     <!-- Specific Page JS goes HERE  -->
     {% block javascripts %}{% endblock javascripts %}
 
 </body>
-</html>
 
+</html>

@@ -1,244 +1,896 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Typography {% endblock %} 
+{% block title %}Quản lý lịch trình{% endblock %}
 
-<!-- Specific CSS goes HERE -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<!-- CSS của Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- JS của Select2 -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<style>
+    .list-items {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .list-items .item {
+        padding: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+
+    .list-items .item .check-icon {
+        margin-right: 8px;
+    }
+
+    .list-items .item.selected {
+        background-color: #e0e0e0;
+        /* Màu nền cho mục được chọn */
+        color: #ff0000;
+        /* Màu chữ cho mục được chọn */
+    }
+
+    .edit-btn,
+    .edit-btn1 {
+        color: #26af5d;
+        /* Màu xanh lá cây cho nút chỉnh sửa */
+        font-size: 1.2em;
+        text-decoration: none;
+        margin-right: 20px;
+        /* Thêm khoảng cách giữa các biểu tượng */
+    }
+
+    .delete-btn {
+        color: #eb5765;
+        /* Màu đỏ cho nút xóa */
+        font-size: 1.2em;
+        text-decoration: none;
+    }
+
+    .edit-btn,
+    .edit-btn1:hover {
+        color: #26af5d71;
+        /* Màu xanh lá cây đậm hơn khi hover */
+    }
+
+    .delete-btn:hover {
+        color: #eb576656;
+        /* Màu đỏ đậm hơn khi hover */
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+{% endblock stylesheets %}
 
 {% block content %}
+<div class="pc-container">
+    <div class="pcoded-content">
+        <div class="d-flex">
+            <div>
+                <h1 class="mt-4">Quản lý lịch trình</h1>
+            </div>
+            <div class="ms-auto mt-4">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                    data-bs-target="#CreateFormModalGio" id="ad_gio">Cài đặt hẹn giờ</button>
+                <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                    data-bs-target="#CreateFormModalNguong" id="ad_nguong">Cài đặt ngưỡng</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Danh sách hẹn giờ</h5>
+                    </div>
+                    <div class="card-body table-border-style">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Tên thiết bị</th>
+                                        <th scope="col">Trạng thái</th>
+                                        <th scope="col">Thời gian</th>
+                                        <th scope="col">Ngày</th>
+                                        <th scope="col">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for hengio in hengios %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ hengio.name }}</td>
+                                        <td>
+                                            {% if hengio.status == 1 %}
+                                            Bật
+                                            {% else %}
+                                            Tắt
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ hengio.time }}</td>
+                                        <td>{{ hengio.days_of_week }}</td>
+                                        <td>
+                                            <a href="#" class="edit-btn" data-id="{{ hengio.id }}"
+                                                data-name="{{ hengio.name }}" data-status="{{ hengio.status }}"
+                                                data-time="{{ hengio.time }}" data-days="{{ hengio.days_of_week }}"
+                                                data-pin="{{ hengio.pin }}">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="#" class="delete-btn"
+                                                onclick="removeItemHengio('{{ hengio.id }}')">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Danh sách đặt ngưỡng</h5>
+                    </div>
+                    <div class="card-body table-border-style">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Tên Sensor</th>
+                                        <th scope="col">Ngưỡng</th>
+                                        <th scope="col">Trạng thái</th>
+                                        <th scope="col">Thời gian</th>
+                                        <th scope="col">Ngày</th>
+                                        <th scope="col">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for setnguong in setnguongs %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ setnguong.sensor_name }}</td>
+                                        <td>
+                                            {% if setnguong.compare == 1 %}
+                                            {{ setnguong.relay_name }} lớn hơn {{ setnguong.compare_value }}
+                                            {% else %}
+                                            {{ setnguong.relay_name }} nhỏ hơn {{ setnguong.compare_value }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if setnguong.status == 1 %}
+                                            Bật
+                                            {% else %}
+                                            Tắt
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ setnguong.time }}</td>
+                                        <td>{{ setnguong.days_of_week }}</td>
+                                        <td>
+                                            <a href="#" class="edit-btn1" data-id="{{ setnguong.id }}"
+                                                data-namesensor="{{ setnguong.sensor_name }}"
+                                                data-pinsensor="{{ setnguong.sensor_pin }}"
+                                                data-namerelay="{{ setnguong.relay_name }}"
+                                                data-pinrelay="{{ setnguong.relay_pin }}"
+                                                data-compare="{{ setnguong.compare }}"
+                                                data-comparevalue="{{ setnguong.compare_value }}"
+                                                data-status="{{ setnguong.status }}" data-time="{{ setnguong.time }}"
+                                                data-days="{{ setnguong.days_of_week }}">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="#" class="delete-btn"
+                                                onclick="removeItemSetnguong('{{ setnguong.id }}')">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-	<!-- [ Main Content ] start -->
-	<div class="pc-container">
-		<div class="pcoded-content">
-			<!-- [ Main Content ] start -->
-			<div class="row mb-3">
-				<div class="col-md-8">
-					<h3>Typography</h3>
-					<p class="lead">Documentation and examples for Bootstrap typography, including global settings, headings, body text, lists, and more.</p>
-					<p class="f-w-500">Check out <a href="http://html.phoenixcoded.net/nextro-new/docs/index-bc-package.html#page-typography" target="_blank" class="badge bg-light-primary">Documentation</a></p>
-				</div>
-			</div>
-			<div class="row">
-				<!-- [ Typography ] start -->
-				<div class="col-sm-12">
-					<div class="card">
-						<div class="card-header">
-							<h5>Headings</h5>
-							<p><span class="badges">.h1</span> through .h6 classes are also available, for when you want to match the font styling of a heading but cannot use the associated HTML element.</p>
-						</div>
-						<div class="card-body">
-							<h1>h1. Heading</h1>
-							<div class="clearfix"></div>
-							<h2>h2. Heading</h2>
-							<div class="clearfix"></div>
-							<h3>This is a H3</h3>
-							<div class="clearfix"></div>
-							<h4>This is a H4</h4>
-							<div class="clearfix"></div>
-							<h5>This is a H5</h5>
-							<div class="clearfix"></div>
-							<h6>This is a H6</h6>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-12">
-					<div class="card">
-						<div class="card-header">
-							<h5>Display Headings</h5>
-						</div>
-						<div class="card-body">
-							<h1 class="display-1">Display 1</h1>
-							<h1 class="display-2">Display 2</h1>
-							<h1 class="display-3">Display 3</h1>
-							<h1 class="display-4">Display 4</h1>
-							<h1 class="display-5">Display 5</h1>
-							<h1 class="display-6">Display 6</h1>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-6">
-					<div class="card">
-						<div class="card-header">
-							<h5>Inline Text Elements</h5>
-						</div>
-						<div class="card-body">
-							<p class="lead m-t-0">Your title goes here</p>
-							You can use the mark tag to
-							<mark>highlight</mark> text.
-							<br>
-							<del>This line of text is meant to be treated as deleted text.</del>
-							<br>
-							<ins>This line of text is meant to be treated as an addition to the document.</ins>
-							<br>
-							<strong>rendered as bold text</strong>
-							<br>
-							<em>rendered as italicized text</em>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-6">
-					<div class="card">
-						<div class="card-header">
-							<h5>Contextual Text Colors</h5>
-						</div>
-						<div class="card-body">
-							<p class="text-muted mb-1">
-								Fusce dapibus, tellus ac cursus commodo, tortor mauris nibh.
-							</p>
-							<p class="text-primary mb-1">
-								Nullam id dolor id nibh ultricies vehicula ut id elit.
-							</p>
-							<p class="text-success mb-1">
-								Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-							</p>
-							<p class="text-info mb-1">
-								Maecenas sed diam eget risus varius blandit sit amet non magna.
-							</p>
-							<p class="text-warning mb-1">
-								Etiam porta sem malesuada magna mollis euismod.
-							</p>
-							<p class="text-danger mb-1">
-								Donec ullamcorper nulla non metus auctor fringilla.
-							</p>
-							<p class="text-dark mb-1">
-								Nullam id dolor id nibh ultricies vehicula ut id elit.
-							</p>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-6 col-lg-4">
-					<div class="card">
-						<div class="card-header">
-							<h5>Unordered</h5>
-						</div>
-						<div class="card-body">
-							<ul>
-								<li>Lorem ipsum dolor sit amet</li>
-								<li>Consectetur adipiscing elit</li>
-								<li>Integer molestie lorem at massa</li>
-								<li>Facilisis in pretium nisl aliquet</li>
-								<li>Nulla volutpat aliquam velit
-									<ul>
-										<li>Phasellus iaculis neque</li>
-										<li>Purus sodales ultricies</li>
-										<li>Vestibulum laoreet porttitor sem</li>
-										<li>Ac tristique libero volutpat at</li>
-									</ul>
-								</li>
-								<li>Faucibus porta lacus fringilla vel</li>
-								<li>Aenean sit amet erat nunc</li>
-								<li>Eget porttitor lorem</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-6 col-lg-4">
-					<div class="card">
-						<div class="card-header">
-							<h5>Ordered</h5>
-						</div>
-						<div class="card-body">
-							<ol>
-								<li>Lorem ipsum dolor sit amet</li>
-								<li>Consectetur adipiscing elit</li>
-								<li>Integer molestie lorem at massa</li>
-								<li>Facilisis in pretium nisl aliquet</li>
-								<li>Nulla volutpat aliquam velit
-									<ul>
-										<li>Phasellus iaculis neque</li>
-										<li>Purus sodales ultricies</li>
-										<li>Vestibulum laoreet porttitor sem</li>
-										<li>Ac tristique libero volutpat at</li>
-									</ul>
-								</li>
-								<li>Faucibus porta lacus fringilla vel</li>
-								<li>Aenean sit amet erat nunc</li>
-								<li>Eget porttitor lorem</li>
-							</ol>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-12 col-lg-4">
-					<div class="card">
-						<div class="card-header">
-							<h5>Unstyled</h5>
-						</div>
-						<div class="card-body">
-							<ul class="list-unstyled">
-								<li>Lorem ipsum dolor sit amet</li>
-								<li>Integer molestie lorem at massa
-									<ul>
-										<li>Phasellus iaculis neque</li>
-									</ul>
-								</li>
-								<li>Faucibus porta lacus fringilla vel</li>
-								<li>Eget porttitor lorem</li>
-							</ul>
-							<h5>Inline</h5>
-							<hr>
-							<ul class="list-inline m-b-0">
-								<li class="list-inline-item">Lorem ipsum</li>
-								<li class="list-inline-item">Phasellus iaculis</li>
-								<li class="list-inline-item">Nulla volutpat</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-6">
-					<div class="card">
-						<div class="card-header">
-							<h5>Blockquotes</h5>
-						</div>
-						<div class="card-body">
-							<p class="text-muted m-b-30">
-								Your awesome text goes here.
-							</p>
-							<blockquote class="blockquote">
-								<p class="mb-2">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-								<footer class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></footer>
-							</blockquote>
-							<p class="text-muted m-b-15 m-t-20">
-								Add <code>.text-end</code> for a blockquote with right-aligned content.
-							</p>
-							<blockquote class="blockquote text-end">
-								<p class="mb-2">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-								<footer class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></footer>
-							</blockquote>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-6">
-					<div class="card">
-						<div class="card-header">
-							<h5>Horizontal Description</h5>
-						</div>
-						<div class="card-body">
-							<dl class="dl-horizontal row">
-								<dt class="col-sm-3">Description lists</dt>
-								<dd class="col-sm-9">A description list is perfect for defining terms.</dd>
+<!-- Modal for creating new schedule -->
+<div class="modal fade" id="CreateFormModalGio" tabindex="-1" aria-labelledby="FormModalLabelGio" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="FormModalLabelGio">Cài đặt hẹn giờ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="create-form-gio" action="{% url 'addgio' %}" method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="relay" class="col-form-label">Tên relay:</label>
+                        <select class="form-select" name="relay" id="relay">
+                            {% for relay in relays %}
+                            <option value="{{ relay.name }}" data-api="{{ relay.api_key }}" data-name="{{ relay.name }}"
+                                data-pin="{{ relay.pin }}">
+                                {{ relay.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="col-form-label">Trạng thái:</label>
+                        <select class="form-select" name="status" id="status">
+                            <option value="1">Bật</option>
+                            <option value="2">Tắt</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="trigger_time" class="col-form-label">Thời gian kích hoạt:</label>
+                        <input type="text" class="form-control flatpickr-time" name="trigger_time" id="trigger_time"
+                            autocomplete="off">
+                    </div>
+                    <div class="mb-3">
+                        <label for="days_of_week" class="col-form-label">Chọn các ngày trong tuần:</label>
+                        <div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="0"
+                                    id="days_of_week0">
+                                <label class="form-check-label" for="days_of_week0">Hai</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="1"
+                                    id="days_of_week1">
+                                <label class="form-check-label" for="days_of_week1">Ba</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="2"
+                                    id="days_of_week2">
+                                <label class="form-check-label" for="days_of_week2">Tư</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="3"
+                                    id="days_of_week3">
+                                <label class="form-check-label" for="days_of_week3">Năm</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="4"
+                                    id="days_of_week4">
+                                <label class="form-check-label" for="days_of_week4">Sáu</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="5"
+                                    id="days_of_week5">
+                                <label class="form-check-label" for="days_of_week5">Bảy</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="6"
+                                    id="days_of_week6">
+                                <label class="form-check-label" for="days_of_week6">Chủ Nhật</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" id="ModalFooterGio">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-warning" id="submit-form-gio">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-								<dt class="col-sm-3">Euismod</dt>
-								<dd class="col-sm-9">Vestibulum id ligula porta felis euismod semper eget lacinia odio sem nec elit.</dd>
-								<dd class="col-sm-9">Donec id elit non mi porta gravida at eget metus.</dd>
+<!-- Modal for editing schedule -->
+<div class="modal fade" id="EditFormModalGio" tabindex="-1" aria-labelledby="EditFormModalLabelGio" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="EditFormModalLabelGio">Chỉnh sửa hẹn giờ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-form-gio" method="post" action="{% url 'edit_gio'%}">
+                    {% csrf_token %}
+                    <input type="hidden" name="id">
+                    <input type="hidden" name="pin">
+                    <div class="mb-3">
+                        <label for="edit-recipient-name" class="col-form-label">Tên relay:</label>
+                        <select class="form-select" name="relay" id="edit-relay">
+                            {% for relay in relays %}
+                            <option value="{{ relay.id }}" data-api="{{ relay.api_key }}" data-name="{{ relay.name }}"
+                                data-pin="{{ relay.pin }}">{{ relay.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-status" class="col-form-label">Trạng thái:</label>
+                        <select class="form-select" name="status" id="edit-status">
+                            <option value="1">Bật</option>
+                            <option value="2">Tắt</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-trigger_time" class="col-form-label">Thời gian kích hoạt:</label>
+                        <input type="text" class="form-control flatpickr-time" name="trigger_time"
+                            id="edit-trigger_time" autocomplete="off">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-days_of_week" class="col-form-label">Chọn các ngày trong tuần:</label>
+                        <div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="0"
+                                    id="edit_days_of_week0">
+                                <label class="form-check-label" for="edit_days_of_week0">Hai</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="1"
+                                    id="edit_days_of_week1">
+                                <label class="form-check-label" for="edit_days_of_week1">Ba</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="2"
+                                    id="edit_days_of_week2">
+                                <label class="form-check-label" for="edit_days_of_week2">Tư</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="3"
+                                    id="edit_days_of_week3">
+                                <label class="form-check-label" for="edit_days_of_week3">Năm</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="4"
+                                    id="edit_days_of_week4">
+                                <label class="form-check-label" for="edit_days_of_week4">Sáu</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="5"
+                                    id="edit_days_of_week5">
+                                <label class="form-check-label" for="edit_days_of_week5">Bảy</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="6"
+                                    id="edit_days_of_week6">
+                                <label class="form-check-label" for="edit_days_of_week6">Chủ Nhật</label>
+                            </div>
+                        </div>
+                    </div>
 
-								<dt class="col-sm-3">Malesuada porta</dt>
-								<dd class="col-sm-9">Etiam porta sem malesuada magna mollis euismod.</dd>
+                </form>
+            </div>
+            <div class="modal-footer" id="EditModalFooterGio">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-warning" id="submit-edit-form-gio">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-								<dt class="col-sm-3 text-truncate">Truncated term is truncated</dt>
-								<dd class="col-sm-9">Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</dd>
-							</dl>
-						</div>
-					</div>
-				</div>
-				<!-- [ Typography ] end -->
-			</div>
-			<!-- [ Main Content ] end -->
-
-		</div>
-	</div>
-	<!-- [ Main Content ] end -->
+<div class="modal fade" id="CreateFormModalNguong" tabindex="-1" aria-labelledby="FormModalLabelNguong"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="FormModalLabelNguong">Cài đặt ngưỡng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="create-form-nguong" action="{% url 'addnguong' %}" method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="recipient-name" class="col-form-label">Tên sensor:</label>
+                        <select class="form-select" name="sensor" id="sensor">
+                            {% for sensor in sensors %}
+                            <option value="{{ sensor.id }}" data-api="{{ sensor.api_key }}"
+                                data-name="{{ sensor.name }}" data-pin="{{ sensor.pin }}">{{ sensor.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="compare" class="col-form-label">Trạng thái:</label>
+                        <select class="form-select" name="compare" id="compare">
+                            <option value="1">Lớn hơn hoặc bằng</option>
+                            <option value="2">Nhỏ hơn hoặc bằng</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="compare_value" class="col-form-label">Giá trị so sánh:</label>
+                        <input type="text" class="form-control" name="compare_value" id="compare_value">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-recipient-name" class="col-form-label">Tên relay:</label>
+                        <select class="form-select" name="relay" id="edit-relay">
+                            {% for relay in relays %}
+                            <option value="{{ relay.id }}" data-api="{{ relay.api_key }}" data-name="{{ relay.name }}"
+                                data-pin="{{ relay.pin }}">{{ relay.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status1" class="col-form-label">Trạng thái:</label>
+                        <select class="form-select" name="status1" id="status1">
+                            <option value="1">Bật</option>
+                            <option value="2">Tắt</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="trigger_time1" class="col-form-label">Thời gian kích hoạt:</label>
+                        <input type="text" class="form-control flatpickr-time" name="trigger_time1" id="trigger_time1"
+                            autocomplete="off">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-days_of_week" class="col-form-label">Chọn các ngày trong tuần:</label>
+                        <div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="0"
+                                    id="edit_days_of_week0">
+                                <label class="form-check-label" for="edit_days_of_week0">Hai</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="1"
+                                    id="edit_days_of_week1">
+                                <label class="form-check-label" for="edit_days_of_week1">Ba</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="2"
+                                    id="edit_days_of_week2">
+                                <label class="form-check-label" for="edit_days_of_week2">Tư</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="3"
+                                    id="edit_days_of_week3">
+                                <label class="form-check-label" for="edit_days_of_week3">Năm</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="4"
+                                    id="edit_days_of_week4">
+                                <label class="form-check-label" for="edit_days_of_week4">Sáu</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="5"
+                                    id="edit_days_of_week5">
+                                <label class="form-check-label" for="edit_days_of_week5">Bảy</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="6"
+                                    id="edit_days_of_week6">
+                                <label class="form-check-label" for="edit_days_of_week6">Chủ Nhật</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" id="ModalFooterNguong">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-warning" id="submit-form-nguong">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="EditFormModalNguong" tabindex="-1" aria-labelledby="FormModalLabelEditNguong"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="FormModalLabelEditNguong">Chỉnh sửa ngưỡng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-form-nguong" method="post" action="{% url 'edit_nguong'%}">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" id="nguong_id" value="{{ nguong.id }}">
+                    <div class="mb-3">
+                        <label for="recipient-name" class="col-form-label">Tên sensor:</label>
+                        <select class="form-select" name="sensor" id="sensor">
+                            {% for sensor in sensors %}
+                            <option value="{{ sensor.id }}" data-api="{{ sensor.api_key }}"
+                                data-name="{{ sensor.name }}" data-pin="{{ sensor.pin }}">{{ sensor.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="compare" class="col-form-label">Trạng thái:</label>
+                        <select class="form-select" name="compare" id="compare">
+                            <option value="1">Lớn hơn hoặc bằng</option>
+                            <option value="2">Nhỏ hơn hoặc bằng</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="compare_value" class="col-form-label">Giá trị so sánh:</label>
+                        <input type="text" class="form-control" name="compare_value" id="compare_value">
+                    </div>
+                    <div class="mb-3">
+                        <label for="relay" class="col-form-label">Tên relay:</label>
+                        <select class="form-select" name="relay" id="relay">
+                            {% for relay in relays %}
+                            <option value="{{ relay.id }}" data-api="{{ relay.api_key }}" data-name="{{ relay.name }}"
+                                data-pin="{{ relay.pin }}">{{ relay.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status1" class="col-form-label">Trạng thái:</label>
+                        <select class="form-select" name="status1" id="status1">
+                            <option value="1">Bật</option>
+                            <option value="2">Tắt</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="trigger_time1" class="col-form-label">Thời gian kích hoạt:</label>
+                        <input type="text" class="form-control flatpickr-time" name="trigger_time1" id="trigger_time1"
+                            autocomplete="off">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-days_of_week" class="col-form-label">Chọn các ngày trong tuần:</label>
+                        <div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="0"
+                                    id="edit_days_of_week0">
+                                <label class="form-check-label" for="edit_days_of_week0">Hai</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="1"
+                                    id="edit_days_of_week1">
+                                <label class="form-check-label" for="edit_days_of_week1">Ba</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="2"
+                                    id="edit_days_of_week2">
+                                <label class="form-check-label" for="edit_days_of_week2">Tư</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="3"
+                                    id="edit_days_of_week3">
+                                <label class="form-check-label" for="edit_days_of_week3">Năm</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="4"
+                                    id="edit_days_of_week4">
+                                <label class="form-check-label" for="edit_days_of_week4">Sáu</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="5"
+                                    id="edit_days_of_week5">
+                                <label class="form-check-label" for="edit_days_of_week5">Bảy</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days_of_week" value="6"
+                                    id="edit_days_of_week6">
+                                <label class="form-check-label" for="edit_days_of_week6">Chủ Nhật</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" id="ModalFooterEditNguong">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-warning" id="submit-form-edit-nguong">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock content %}
 
-<!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    $(document).ready(function () {
+        $("#submit-form-gio").click(function () {
+            var csrfToken = $('[name=csrfmiddlewaretoken]').val();
+            var daysOfWeek = [];
+            $('input[name="days_of_week"]:checked').each(function () {
+                daysOfWeek.push($(this).val());
+            });
+            var daysOfWeekString = daysOfWeek.join(',');
+
+            var formData = {
+                'name': $('#relay option:selected').data('name'),
+                'api_key': $('#relay option:selected').data('api'),
+                'pin': $('#relay option:selected').data('pin'),
+                'status': $('#status').val(),
+                'trigger_time': $('#trigger_time').val(),
+                'days_of_week': daysOfWeekString,
+                'csrfmiddlewaretoken': csrfToken
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "addgio" %}',
+                data: formData,
+                success: function (data) {
+                    window.location.href = "/scene";
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error:', errorThrown);
+                }
+            });
+        });
+        $("#submit-form-nguong").click(function () {
+            var csrfToken = $('[name=csrfmiddlewaretoken]').val();
+            var daysOfWeek = [];
+            $('input[name="days_of_week"]:checked').each(function () {
+                daysOfWeek.push($(this).val());
+            });
+            var daysOfWeekString = daysOfWeek.join(',');
+
+            var formData = {
+                'sensor_pin': $('#sensor option:selected').data('pin'),
+                'sensor_name': $('#sensor option:selected').data('name'),
+                'relay_name': $('#relay option:selected').data('name'),
+                'relay_pin': $('#relay option:selected').data('pin'),
+                'api_key': $('#relay option:selected').data('api'),
+                'compare': $('#compare').val(),
+                'compare_value': $('#compare_value').val(),
+                'status': $('#status1').val(),
+                'trigger_time1': $('#trigger_time1').val(),
+                'days_of_week': daysOfWeekString,
+                'csrfmiddlewaretoken': csrfToken
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "addnguong" %}',
+                data: formData,
+                success: function (data) {
+                    window.location.href = "/scene";
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error:', errorThrown);
+                }
+            });
+        });
+
+        window.removeItemHengio = function (id) {
+            if (confirm('Bạn có chắc chắn muốn xóa mục này?')) {
+                fetch(`/delete-hengio/${id}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Đã xóa thành công!');
+                            location.reload();
+                        } else {
+                            alert('Xóa thất bại!');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Xóa thất bại!');
+                    });
+            }
+        }
+        window.removeItemSetnguong = function (id) {
+            if (confirm('Bạn có chắc chắn muốn xóa mục này?')) {
+                fetch(`/delete-setnguong/${id}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Đã xóa thành công!');
+                            location.reload();
+                        } else {
+                            alert('Xóa thất bại!');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Xóa thất bại!');
+                    });
+            }
+        }
+
+
+    });
+    $(document).ready(function () {
+        $('.edit-btn').click(function () {
+            var id = $(this).data('id');
+            var name = $(this).data('name');
+            var status = $(this).data('status');
+            var time = $(this).data('time');
+            var days = $(this).data('days').split(',');
+            var pin = $(this).data('pin');
+            console.log(days);
+
+            fillEditForm(id, name, status, time, days, pin);
+            $('#EditFormModalGio').modal('show');
+        });
+
+        function fillEditForm(id, name, status, time, days, pin) {
+            $('#EditFormModalGio').find('input[name="id"]').val(id);
+            $('#EditFormModalGio').find('input[name="pin"]').val(pin);
+            $('#EditFormModalGio').find('select[name="relay"]').val(name);
+            $('#EditFormModalGio').find('select[name="status"]').val(status);
+            $('#EditFormModalGio').find('input[name="trigger_time"]').flatpickr({
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "H:i",
+                time_24hr: true,
+                defaultDate: time // Set the default time
+            });
+            $('#EditFormModalGio').find('select[name="relay"] option').each(function () {
+                if ($(this).data('pin') == pin) {
+                    $(this).prop('selected', true);
+                }
+            });
+
+
+            $('#EditFormModalGio').find('input[name="days_of_week"]').prop('checked', false);
+
+            for (let i = 0; i < days.length; i++) {
+                var checkbox = $('#EditFormModalGio').find('input[name="days_of_week"][value="' + i + '"]');
+                checkbox.prop('checked', true);
+            }
+        }
+
+        $('#submit-edit-form-gio').click(function () {
+
+            var daysOfWeek = [];
+            $('#EditFormModalGio').find('input[name="days_of_week"]:checked').each(function () {
+                daysOfWeek.push($(this).val());
+            });
+            var daysOfWeekString = daysOfWeek.join(',');
+
+            var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+
+
+            var formData = {
+                'id': $('#EditFormModalGio').find('input[name="id"]').val(),
+                'name': $('#EditFormModalGio').find('select[name="relay"] option:selected').data('name'),
+                'api_key': $('#EditFormModalGio').find('select[name="relay"] option:selected').data('api'),
+                'pin': $('#EditFormModalGio').find('select[name="relay"] option:selected').data('pin'),
+                'status': $('#EditFormModalGio').find('select[name="status"]').val(),
+                'trigger_time': $('#EditFormModalGio').find('input[name="trigger_time"]').val(),
+                'days_of_week': daysOfWeekString,
+                'csrfmiddlewaretoken': csrfToken
+            };
+
+            console.log(formData);
+
+
+            $.ajax({
+                type: "POST",
+                url: $('#edit-form-gio').attr('action'),
+                data: formData,
+                success: function (response) {
+                    window.location.href = "/scene";
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error:', errorThrown);
+                }
+            });
+        });
+    });
+    $(document).ready(function () {
+        $('.edit-btn1').click(function () {
+            var id = $(this).data('id');
+            var namesensor = $(this).data('namesensor');
+            var pinsensor = $(this).data('pinsensor');
+            var namerelay = $(this).data('namerelay');
+            var pinrelay = $(this).data('pinrelay');
+            var compare = $(this).data('compare');
+            var comparevalue = $(this).data('comparevalue');
+            var status = $(this).data('status');
+            var time = $(this).data('time');
+            var days = $(this).data('days').split(',');
+
+            console.log(pinrelay);
+
+            fillEditForm(id, namesensor, pinsensor, namerelay, pinrelay, compare, comparevalue, status, time, days);
+            $('#EditFormModalNguong').modal('show');
+        });
+
+        function fillEditForm(id, namesensor, pinsensor, namerelay, pinrelay, compare, comparevalue, status, time, days) {
+            $('#EditFormModalNguong').find('input[name="id"]').val(id);
+            $('#EditFormModalNguong').find('input[name="pinsensor"]').val(pinsensor);
+            $('#EditFormModalNguong').find('select[name="sensor"]').val(namesensor);
+            $('#EditFormModalNguong').find('select[name="compare"]').val(compare);
+            $('#EditFormModalNguong').find('input[name="compare_value"]').val(comparevalue);
+            $('#EditFormModalNguong').find('select[name="relay"]').val(namerelay);
+            $('#EditFormModalNguong').find('select[name="status1"]').val(status);
+            $('#EditFormModalNguong').find('input[name="trigger_time1"]').flatpickr({
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "H:i",
+                time_24hr: true,
+                defaultDate: time // Set the default time
+            });
+            $('#EditFormModalNguong').find('select[name="relay"] option').each(function () {
+                if ($(this).data('pin') == pinrelay) {
+                    $(this).prop('selected', true);
+                }
+            });
+            $('#EditFormModalNguong').find('select[name="sensor"] option').each(function () {
+                if ($(this).data('pin') == pinsensor) {
+                    $(this).prop('selected', true);
+                }
+            });
+            // Reset all days checkboxes
+            $('#EditFormModalNguong').find('input[name="days_of_week"]').prop('checked', false);
+
+            // Set the checkboxes for the selected days
+            for (let i = 0; i < days.length; i++) {
+                var checkbox = $('#EditFormModalNguong').find('input[name="days_of_week"][value="' + i + '"]');
+                checkbox.prop('checked', true);
+            }
+        }
+
+        $('#submit-form-edit-nguong').click(function () {
+            // Collecting days of the week
+            var daysOfWeek = [];
+            $('#EditFormModalNguong').find('input[name="days_of_week"]:checked').each(function () {
+                daysOfWeek.push($(this).val());
+            });
+            var daysOfWeekString = daysOfWeek.join(',');
+
+            // Collecting CSRF token
+            var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+
+            // Collecting form data
+            var formData = {
+                'id': $('#EditFormModalNguong').find('input[name="id"]').val(),
+                'sensor_pin':$('#EditFormModalNguong').find('select[name="sensor"] option:selected').data('pin'),
+                'sensor_name': $('#EditFormModalNguong').find('select[name="sensor"] option:selected').data('name'),
+                'relay_name': $('#EditFormModalNguong').find('select[name="relay"] option:selected').data('name'),
+                'relay_pin': $('#EditFormModalNguong').find('select[name="relay"] option:selected').data('pin'),
+                'api_key': $('#EditFormModalNguong').find('select[name="relay"] option:selected').data('api'),
+                'compare': $('#EditFormModalNguong').find('select[name="compare"]').val(),
+                'compare_value': $('#EditFormModalNguong').find('input[name="compare_value"]').val(),
+                'status': $('#EditFormModalNguong').find('select[name="status1"]').val(),
+                'trigger_time': $('#EditFormModalNguong').find('input[name="trigger_time1"]').val(),
+                'days_of_week': daysOfWeekString,
+                'csrfmiddlewaretoken': csrfToken
+            };
+
+            // Displaying form data in console
+            console.log(formData);
+
+            $.ajax({
+                type: "POST",
+                url: $('#edit-form-nguong').attr('action'),
+                data: formData,
+                success: function(response) {
+                    window.location.href = "/scene";
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error:', errorThrown);
+                }
+            });
+        });
+    });
+
+</script>
+
+<script>
+    flatpickr(".flatpickr-time", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        static: true,
+        minuteIncrement: 1 // Set minute increment to 1
+    });
+</script>
+
+{% endblock javascripts %}

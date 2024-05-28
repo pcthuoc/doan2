@@ -1,461 +1,317 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Dashboard {% endblock %} 
+{% block title %} Dashboard {% endblock %}
 
-<!-- Specific CSS goes HERE -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+<style>
+    .toggle-switch {
+        display: none;
+    }
+
+    .toggle-label {
+        display: block;
+        width: 50px;
+        height: 30px;
+        background-color: #797979;
+        border-radius: 20px;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .toggle-label::after {
+        content: '';
+        position: absolute;
+        top: 1px;
+        left: 2px;
+        width: 28px;
+        height: 28px;
+        background-color: #fffffff0;
+        border-radius: 50%;
+        transition: all 0.3s;
+    }
+
+    .toggle-switch:checked + .toggle-label {
+        background-color: #ff3e20;
+    }
+
+    .toggle-switch:checked + .toggle-label::after {
+        left: calc(100% - 2px);
+        transform: translateX(-100%);
+    }
+</style>
+{% endblock stylesheets %}
 
 {% block content %}
-
-    <!-- [ Main Content ] start -->
-    <div class="pc-container">
-        <div class="pcoded-content">
-            <!-- [ breadcrumb ] start -->
-            <div class="page-header">
-                <div class="page-block">
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <div class="page-header-title">
-                                <h5 class="m-b-10">Dashboard sale</h5>
+<div class="pc-container">
+    <div class="pcoded-content">
+        <div class="row">
+            <div class="col-xl-6 col-md-12" id="relays">
+                <div class="card flat-card" id="sensors">
+                    <div class="row-table">
+                        {% for sensor in sensors %}
+                        {% if forloop.counter0|divisibleby:3 and not forloop.first %}
+                        </div><div class="row-table">
+                        {% endif %}
+                        <div class="col-sm-4 d-none d-md-table-cell d-lg-table-cell d-xl-table-cell card-body br">
+                            <div class="row align-items-center">
+                                <div class="col-sm-4 text-center">
+                                    <i class="material-icons-two-tone text-primary mb-1">language</i>
+                                </div>
+                                <div class="col-sm-8">
+                                    <h5>{{ sensor.value }} {{ sensor.unit }}</h5>
+                                    <span>{{ sensor.name }}</span>
+                                </div>
                             </div>
-                            <ul class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                                <li class="breadcrumb-item">Dashboard sale</li>
-                            </ul>
                         </div>
+                        {% endfor %}
                     </div>
                 </div>
-            </div>
-            <!-- [ breadcrumb ] end -->
-            <!-- [ Main Content ] start -->
-            <div class="row">
-                <!-- support-section start -->
-                <div class="col-xl-6 col-md-12">
-                    <div class="card flat-card">
-                        <div class="row-table">
-                            <div class="col-sm-6 card-body br">
-                                <div class="row">
-                                    <div class="col-sm-4">
-                                        <i class="material-icons-two-tone text-primary mb-1">group</i>
-                                    </div>
-                                    <div class="col-sm-8 text-md-center">
-                                        <h5>1000</h5>
-                                        <span>Customers</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6 d-none d-md-table-cell d-lg-table-cell d-xl-table-cell card-body br">
-                                <div class="row">
-                                    <div class="col-sm-4">
-                                        <i class="material-icons-two-tone text-primary mb-1">language</i>
-                                    </div>
-                                    <div class="col-sm-8 text-md-center">
-                                        <h5>$1252</h5>
-                                        <span>Revenue</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6 card-body">
-                                <div class="row">
-                                    <div class="col-sm-4">
-                                        <i class="material-icons-two-tone text-primary mb-1">unarchive</i>
-                                    </div>
-                                    <div class="col-sm-8 text-md-center">
-                                        <h5>600</h5>
-                                        <span>Growth</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row-table">
-                            <div class="col-sm-6 card-body br">
-                                <div class="row">
-                                    <div class="col-sm-4">
-                                        <i class="material-icons-two-tone text-primary mb-1">swap_horizontal_circle</i>
-                                    </div>
-                                    <div class="col-sm-8 text-md-center">
-                                        <h5>3550</h5>
-                                        <span>Returns</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6 d-none d-md-table-cell d-lg-table-cell d-xl-table-cell card-body br">
-                                <div class="row">
-                                    <div class="col-sm-4">
-                                        <i class="material-icons-two-tone text-primary mb-1">cloud_download</i>
-                                    </div>
-                                    <div class="col-sm-8 text-md-center">
-                                        <h5>3550</h5>
-                                        <span>Downloads</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6 card-body">
-                                <div class="row">
-                                    <div class="col-sm-4">
-                                        <i class="material-icons-two-tone text-primary mb-1">shopping_cart</i>
-                                    </div>
-                                    <div class="col-sm-8 text-md-center">
-                                        <h5>100%</h5>
-                                        <span>Order</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card support-bar overflow-hidden">
-                                <div class="card-body pb-0">
-                                    <h2 class="m-0">53.94%</h2>
-                                    <span class="text-primary">Conversion Rate</span>
-                                    <p class="mb-3 mt-3">Number of conversions divided by the total visitors. </p>
-                                </div>
-                                <div id="support-chart"></div>
-                                <div class="card-footer border-0 bg-primary text-white background-pattern-white">
-                                    <div class="row text-center">
-                                        <div class="col">
-                                            <h4 class="m-0 text-white">10</h4>
-                                            <span>2018</span>
-                                        </div>
-                                        <div class="col">
-                                            <h4 class="m-0 text-white">15</h4>
-                                            <span>2017</span>
-                                        </div>
-                                        <div class="col">
-                                            <h4 class="m-0 text-white">13</h4>
-                                            <span>2016</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card support-bar overflow-hidden">
-                                <div class="card-body pb-0">
-                                    <h2 class="m-0">1432</h2>
-                                    <span class="text-primary">Order delivered</span>
-                                    <p class="mb-3 mt-3">Total number of order delivered in this month.</p>
-                                </div>
-                                <div class="card-footer border-0">
-                                    <div class="row text-center">
-                                        <div class="col">
-                                            <h4 class="m-0">130</h4>
-                                            <span>May</span>
-                                        </div>
-                                        <div class="col">
-                                            <h4 class="m-0">251</h4>
-                                            <span>June</span>
-                                        </div>
-                                        <div class="col">
-                                            <h4 class="m-0 ">235</h4>
-                                            <span>July</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div id="support-chart1"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-6 col-md-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>Department wise monthly sales report</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row pb-2">
-                                <div class="col-auto m-b-10">
-                                    <h3 class="mb-1">$21,356.46</h3>
-                                    <span>Total Sales</span>
-                                </div>
-                                <div class="col-auto m-b-10">
-                                    <h3 class="mb-1">$1935.6</h3>
-                                    <span>Average</span>
-                                </div>
-                            </div>
-                            <div id="account-chart"></div>
-                        </div>
-                    </div>
-                </div>
-                <!-- support-section end -->
-                <!-- customer-section start -->
-                <div class="col-xl-6 col-md-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <h6>Customer Satisfaction</h6>
-                            <span>It takes continuous effort to maintain high customer satisfaction levels Internal and external.</span>
-                            <div class="row d-flex justify-content-center align-items-center">
-                                <div class="col">
-                                    <div id="satisfaction-chart"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card table-card">
-                        <div class="card-header">
-                            <h5>New Products</h5>
-                        </div>
-                        <div class="pro-scroll" style="height:255px;position:relative;">
-                            <div class="card-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-hover m-b-0">
-                                        <thead>
-                                            <tr>
-                                                <th>Product Name</th>
-                                                <th>Image</th>
-                                                <th>Status</th>
-                                                <th>Price</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>HeadPhone</td>
-                                                <td><img src="/static/assets/images/widget/p1.jpg" alt="" class="img-20"></td>
-                                                <td>
-                                                    <div><label class="badge bg-light-warning">Pending</label></div>
-                                                </td>
-                                                <td>$10</td>
-                                                <td><a href="#!"><i class="icon feather icon-edit f-16  text-success"></i></a><a href="#!"><i class="feather icon-trash-2 ms-3 f-16 text-danger"></i></a></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Iphone 6</td>
-                                                <td><img src="/static/assets/images/widget/p2.jpg" alt="" class="img-20"></td>
-                                                <td>
-                                                    <div><label class="badge bg-light-danger">Cancel</label></div>
-                                                </td>
-                                                <td>$20</td>
-                                                <td><a href="#!"><i class="icon feather icon-edit f-16  text-success"></i></a><a href="#!"><i class="feather icon-trash-2 ms-3 f-16 text-danger"></i></a></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Jacket</td>
-                                                <td><img src="/static/assets/images/widget/p3.jpg" alt="" class="img-20"></td>
-                                                <td>
-                                                    <div><label class="badge bg-light-success">Success</label></div>
-                                                </td>
-                                                <td>$35</td>
-                                                <td><a href="#!"><i class="icon feather icon-edit f-16 text-success"></i></a><a href="#!"><i class="feather icon-trash-2 ms-3 f-16 text-danger"></i></a></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Sofa</td>
-                                                <td><img src="/static/assets/images/widget/p4.jpg" alt="" class="img-20"></td>
-                                                <td>
-                                                    <div><label class="badge bg-light-danger">Cancel</label></div>
-                                                </td>
-                                                <td>$85</td>
-                                                <td><a href="#!"><i class="icon feather icon-edit f-16 text-success"></i></a><a href="#!"><i class="feather icon-trash-2 ms-3 f-16 text-danger"></i></a></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Iphone 6</td>
-                                                <td><img src="/static/assets/images/widget/p2.jpg" alt="" class="img-20"></td>
-                                                <td>
-                                                    <div><label class="badge bg-light-success">Success</label></div>
-                                                </td>
-                                                <td>$20</td>
-                                                <td><a href="#!"><i class="icon feather icon-edit f-16 text-success"></i></a><a href="#!"><i class="feather icon-trash-2 ms-3 f-16 text-danger"></i></a></td>
-                                            </tr>
-                                            <tr>
-                                                <td>HeadPhone</td>
-                                                <td><img src="/static/assets/images/widget/p1.jpg" alt="" class="img-20"></td>
-                                                <td>
-                                                    <div><label class="badge bg-light-warning">Pending</label></div>
-                                                </td>
-                                                <td>$50</td>
-                                                <td><a href="#!"><i class="icon feather icon-edit f-16 text-success"></i></a><a href="#!"><i class="feather icon-trash-2 ms-3 f-16 text-danger"></i></a></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Iphone 6</td>
-                                                <td><img src="/static/assets/images/widget/p2.jpg" alt="" class="img-20"></td>
-                                                <td>
-                                                    <div><label class="badge bg-light-danger">Cancel</label></div>
-                                                </td>
-                                                <td>$30</td>
-                                                <td><a href="#!"><i class="icon feather icon-edit f-16 text-success"></i></a><a href="#!"><i class="feather icon-trash-2 ms-3 f-16 text-danger"></i></a></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-6 col-md-12">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <div class="card prod-p-card background-pattern">
-                                <div class="card-body">
-                                    <div class="row align-items-center m-b-0">
-                                        <div class="col">
-                                            <h6 class="m-b-5">Total Profit</h6>
-                                            <h3 class="m-b-0">$1,783</h3>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="material-icons-two-tone text-primary">card_giftcard</i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="card prod-p-card bg-primary background-pattern-white">
-                                <div class="card-body">
-                                    <div class="row align-items-center m-b-0">
-                                        <div class="col">
-                                            <h6 class="m-b-5 text-white">Total Orders</h6>
-                                            <h3 class="m-b-0 text-white">15,830</h3>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="material-icons-two-tone text-white">local_mall</i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="card prod-p-card bg-primary background-pattern-white">
-                                <div class="card-body">
-                                    <div class="row align-items-center m-b-0">
-                                        <div class="col">
-                                            <h6 class="m-b-5 text-white">Average Price</h6>
-                                            <h3 class="m-b-0 text-white">$6,780</h3>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="material-icons-two-tone text-white">monetization_on</i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="card prod-p-card background-pattern">
-                                <div class="card-body">
-                                    <div class="row align-items-center m-b-0">
-                                        <div class="col">
-                                            <h6 class="m-b-5">Product Sold</h6>
-                                            <h3 class="m-b-0">6,784</h3>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="material-icons-two-tone text-primary">local_offer</i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card feed-card">
-                        <div class="card-header">
-                            <h5>Feeds</h5>
-                        </div>
-                        <div class="feed-scroll" style="height:385px;position:relative;">
+                <div class="row" id="relays">
+                    {% for relay in relays %}
+                    <div class="col-sm-6">
+                        <div class="card prod-p-card background-pattern">
                             <div class="card-body">
-                                <div class="row m-b-25 align-items-center">
-                                    <div class="col-auto p-r-0">
-                                        <i data-feather="bell" class="bg-light-primary feed-icon p-2 wid-30 hei-30"></i>
-                                    </div>
+                                <div class="row align-items-center m-b-0">
                                     <div class="col">
-                                        <a href="#!">
-                                            <h6 class="m-b-5">You have 3 pending tasks. <span class="text-muted float-end f-14">Just Now</span></h6>
-                                        </a>
+                                        <h3 class="m-b-0">{{ relay.name }}</h3>
                                     </div>
-                                </div>
-                                <div class="row m-b-25 align-items-center">
-                                    <div class="col-auto p-r-0">
-                                        <i data-feather="shopping-cart" class="bg-light-danger feed-icon p-2 wid-30 hei-30"></i>
-                                    </div>
-                                    <div class="col">
-                                        <a href="#!">
-                                            <h6 class="m-b-5">New order received <span class="text-muted float-end f-14">30 min ago</span></h6>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="row m-b-25 align-items-center">
-                                    <div class="col-auto p-r-0">
-                                        <i data-feather="file-text" class="bg-light-success feed-icon p-2 wid-30 hei-30"></i>
-                                    </div>
-                                    <div class="col">
-                                        <a href="#!">
-                                            <h6 class="m-b-5">You have 3 pending tasks. <span class="text-muted float-end f-14">Just Now</span></h6>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="row m-b-25 align-items-center">
-                                    <div class="col-auto p-r-0">
-                                        <i data-feather="bell" class="bg-light-primary feed-icon p-2 wid-30 hei-30"></i>
-                                    </div>
-                                    <div class="col">
-                                        <a href="#!">
-                                            <h6 class="m-b-5">You have 4 tasks Done. <span class="text-muted float-end f-14">1 hours ago</span></h6>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="row m-b-25 align-items-center">
-                                    <div class="col-auto p-r-0">
-                                        <i data-feather="file-text" class="bg-light-success feed-icon p-2 wid-30 hei-30"></i>
-                                    </div>
-                                    <div class="col">
-                                        <a href="#!">
-                                            <h6 class="m-b-5">You have 2 pending tasks. <span class="text-muted float-end f-14">Just Now</span></h6>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="row m-b-25 align-items-center">
-                                    <div class="col-auto p-r-0">
-                                        <i data-feather="shopping-cart" class="bg-light-danger feed-icon p-2 wid-30 hei-30"></i>
-                                    </div>
-                                    <div class="col">
-                                        <a href="#!">
-                                            <h6 class="m-b-5">New order received <span class="text-muted float-end f-14">4 hours ago</span></h6>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="row m-b-25 align-items-center">
-                                    <div class="col-auto p-r-0">
-                                        <i data-feather="shopping-cart" class="bg-light-danger feed-icon p-2 wid-30 hei-30"></i>
-                                    </div>
-                                    <div class="col">
-                                        <a href="#!">
-                                            <h6 class="m-b-5">New order Done <span class="text-muted float-end f-14">Just Now</span></h6>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="row m-b-25 align-items-center">
-                                    <div class="col-auto p-r-0">
-                                        <i data-feather="file-text" class="bg-light-success feed-icon p-2 wid-30 hei-30"></i>
-                                    </div>
-                                    <div class="col">
-                                        <a href="#!">
-                                            <h6 class="m-b-5">You have 5 pending tasks. <span class="text-muted float-end f-14">5 hours ago</span></h6>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="row m-b-0 align-items-center">
-                                    <div class="col-auto p-r-0">
-                                        <i data-feather="bell" class="bg-light-primary feed-icon p-2 wid-30 hei-30"></i>
-                                    </div>
-                                    <div class="col">
-                                        <a href="#!">
-                                            <h6 class="m-b-5">You have 4 tasks Done. <span class="text-muted float-end f-14">2 hours ago</span></h6>
-                                        </a>
+                                    <div class="col-auto">
+                                        <input type="checkbox" id="relay-toggle-{{ relay.id }}" class="toggle-switch" {% if relay.value == "1" %}checked{% endif %}>
+                                        <label for="relay-toggle-{{ relay.id }}" class="toggle-label" onclick="toggleRelay('{{ relay.id }}', '{{ relay.pin }}', '{{ relay.api_key }}')"></label>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    {% if forloop.counter|divisibleby:2 %}
+                    </div><div class="row">
+                    {% endif %}
+                    {% endfor %}
                 </div>
-                <!-- customer-section end -->
             </div>
-            <!-- [ Main Content ] end -->
+            <div class="col-xl-6 col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Biểu đồ Nhiệt độ và Độ ẩm không khí
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="area-chart-1"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-6 col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>BDữ liệu Ánh sáng</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="area-chart-v4"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-6 col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Dữ liệu pH</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="area-chart-v5"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <!-- [ Main Content ] end -->
-
+</div>
 {% endblock content %}
 
-<!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script src="/static/assets/js/plugins/apexcharts.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <script src="/static/assets/js/plugins/apexcharts.min.js"></script>
-    <script src="/static/assets/js/pages/dashboard-sale.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var data_v7 = JSON.parse('{{ data_list_v7|escapejs }}');
+        var data_v8 = JSON.parse('{{ data_list_v8|escapejs }}');
+        var data_v4 = JSON.parse('{{ data_list_v4|escapejs }}');
+        var data_v5 = JSON.parse('{{ data_list_v5|escapejs }}');
 
+        // Extract values and dates
+        var values_v7 = data_v7.map(item => parseFloat(item.value));
+        var values_v8 = data_v8.map(item => parseFloat(item.value));
+        var dates_v7 = data_v7.map(item => item.date); 
+        var values_v4 = data_v4.map(item => parseFloat(item.value));
+        var dates_v4 = data_v4.map(item => item.date); 
+        var values_v5 = data_v5.map(item => parseFloat(item.value));
+        var dates_v5 = data_v5.map(item => item.date); 
+
+        var options = {
+            chart: {
+                height: 350,
+                type: 'area',
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            colors: ["#ffa21d", "#EA4D4D"],
+            series: [{
+                name: 'Độ ẩm',
+                data: values_v7
+            }, {
+                name: 'Nhiệt độ',
+                data: values_v8
+            }],
+            xaxis: {
+                type: 'datetime',
+                categories: dates_v7
+            },
+            tooltip: {
+                x: {
+                    format: 'dd/MM/yy HH:mm'
+                },
+            }
+        };
+
+        var chart = new ApexCharts(
+            document.querySelector("#area-chart-1"),
+            options
+        );
+
+        chart.render();
+
+        // Biểu đồ cho dữ liệu V4
+        var options_v4 = {
+            chart: {
+                height: 300,
+                type: 'area',
+               
+            },
+            dataLabels: {
+                enabled: false,
+                width: 1,
+            },
+            stroke: {
+                cucurve: 'smooth'
+            },
+            colors: ["#7267EF"],
+            series: [{
+                name: "Ánh sáng",
+                data: values_v4
+            }],
+            
+            grid: {
+                row: {
+                    colors: ['#f3f6ff', 'transparent'], 
+                    opacity: 0.5
+                },
+            },
+            xaxis: {
+                type: 'datetime',
+                categories: dates_v4
+            },
+            tooltip: {
+                x: {
+                    format: 'dd/MM/yy HH:mm'
+                },
+            }
+        };
+
+        var chart_v4 = new ApexCharts(
+            document.querySelector("#area-chart-v4"),
+            options_v4
+        );
+        chart_v4.render();
+
+        // Biểu đồ cho dữ liệu V5
+        var options_v5 = {
+            chart: {
+                height: 300,
+                type: 'area',
+                
+            },
+            dataLabels: {
+                enabled: false,
+                width: 1,
+            },
+            stroke: {
+                curve: 'smooth',
+            },
+            colors: ["#7267EF"],
+            series: [{
+                name: "pH",
+                data: values_v5
+            }],
+            tooltip: {
+                x: {
+                    format: 'dd/MM/yy HH:mm'
+                },
+            },
+            grid: {
+                row: {
+                    colors: ['#f3f6ff', 'transparent'], 
+                    opacity: 0.5
+                },
+            },
+            xaxis: {
+                type: 'datetime',
+                categories: dates_v5
+            }
+        };
+
+        var chart_v5 = new ApexCharts(
+            document.querySelector("#area-chart-v5"),
+            options_v5
+        );
+        chart_v5.render();
+    });
+
+    const ws = new WebSocket('ws://' + window.location.host + '/ws/notifications/');
+    console.log(ws);
+
+    ws.onopen = () => {
+        console.log('WebSocket connection established');
+    };
+    ws.onerror = (error) => {
+        console.error('WebSocket error: ', error);
+    };
+    ws.onclose = () => {
+        console.log('WebSocket connection closed');
+    };
+    ws.onmessage = (event) => {
+        console.log('Message received from server');
+        loadData();
+    };
+
+    function loadData() {
+        $.ajax({
+            url: "{% url 'home' %}"
+        }).done(function (data) {
+            $('#sensors').html($(data).find('#sensors').html());
+            $('#relays').html($(data).find('#relays').html());
+        });
+    }
+
+    function toggleRelay(relayId, relayPin, apikey) {
+        const relayCheckbox = document.getElementById('relay-toggle-' + relayId);
+        const value = relayCheckbox.checked ? 0 : 1;
+        const url = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/update/${apikey}/${relayPin}/?value=${value}`;
+
+        fetch(url, { method: 'GET' })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                console.log('Request sent successfully');
+            })
+            .catch(error => {
+                console.error('Error sending request:', error);
+            });
+    }
+</script>
 {% endblock javascripts %}
+

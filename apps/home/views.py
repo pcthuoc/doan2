@@ -3,26 +3,208 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
+import datetime
+import json
 from django import template
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
 from django.urls import reverse
 
+from datas.models import Data
+from devices.models import Device
+from hengio.models import Hengio
+from setnguong.models import Setnguong
 
-@login_required(login_url="/login/")
 def index(request):
-    context = {'segment': 'index'}
+    sensors = Device.objects.filter(type=2)
+    relays = Device.objects.filter(type=1)
+    
 
+    now = datetime.datetime.now()
+    seven_days_ago = now - datetime.timedelta(days=4)
+    
+    data_v7 = Data.objects.filter(pin='V7', date__gte=seven_days_ago).values('value', 'date')
+    data_v8 = Data.objects.filter(pin='V8', date__gte=seven_days_ago).values('value', 'date')
+    data_v4 = Data.objects.filter(pin='V4', date__gte=seven_days_ago).values('value', 'date')
+    data_v5 = Data.objects.filter(pin='V5', date__gte=seven_days_ago).values('value', 'date')
+
+    def serialize_data(data):
+        return [{'value': item['value'], 'date': item['date'].isoformat()} for item in data]
+
+    data_list_v7 = serialize_data(data_v7)
+    data_list_v8 = serialize_data(data_v8)
+    data_list_v4 = serialize_data(data_v4)
+    data_list_v5 = serialize_data(data_v5)
+
+    context = {
+        'sensors': sensors,
+        'relays': relays,
+        'segment': 'index',
+        'data_list_v7': json.dumps(data_list_v7),  # Serialize to JSON
+        'data_list_v8': json.dumps(data_list_v8),  # Serialize to JSON
+        'data_list_v4': json.dumps(data_list_v4),  # Serialize to JSON
+        'data_list_v5': json.dumps(data_list_v5),  # Serialize to JSON
+    }
+    
     html_template = loader.get_template('home/index.html')
     return HttpResponse(html_template.render(context, request))
 
+def addnguong(request):
+    if request.method == "POST":
+        # Lấy dữ liệu từ form
+        api_key = request.POST.get("api_key")
+        sensor_pin = request.POST.get("sensor_pin")
+        sensor_name = request.POST.get("sensor_name")
+        relay_name = request.POST.get("relay_name")
+        relay_pin = request.POST.get("relay_pin")
+        compare = request.POST.get("compare")
+        compare_value = request.POST.get("compare_value")
+        status = request.POST.get("status")
+        trigger_time = request.POST.get("trigger_time1")
+        days_of_week = request.POST.getlist("days_of_week")
 
-@login_required(login_url="/login/")
+        response_data = {
+                "api_key":api_key,
+                "sensor_pin":sensor_pin,
+                "sensor_name":sensor_name,
+                "relay_name":relay_name,
+                "relay_pin":relay_pin,
+                "compare":compare,
+                "status":status,
+                "compare_value":compare_value,
+                "time":trigger_time,
+                "days_of_week":days_of_week,
+        }
+        print(response_data)
+
+  
+
+
+        setnguong = Setnguong.objects.create(
+                api_key=api_key,
+                sensor_pin=sensor_pin,
+                sensor_name=sensor_name,
+                relay_name=relay_name,
+                relay_pin=relay_pin,
+                status=status,
+                compare=compare,
+                compare_value=compare_value,
+                time=trigger_time,
+                days_of_week=days_of_week,
+            )
+        print(response_data)
+        setnguong.save()
+        return JsonResponse({"success": True}, status=200)
+
+    else:
+        return JsonResponse({"error": "Invalid request method."}, status=405)  
+
+def addgio(request):
+    if request.method == "POST":
+
+        api_key = request.POST.get("api_key")
+        pin = request.POST.get("pin")
+        name = request.POST.get("name")
+        status = request.POST.get("status")
+        trigger_time = request.POST.get("trigger_time")
+        days_of_week = request.POST.getlist("days_of_week")
+
+        
+
+
+        response_data = {
+            "api_key": api_key,
+            "pin": pin,
+            "name": name,
+            "status": status,
+            "trigger_time": trigger_time,
+            "days_of_week": days_of_week,
+        }
+        print(response_data)
+        hengio = Hengio.objects.create(
+                api_key=api_key,
+                pin=pin,
+                name=name,
+                status=status,
+                time=trigger_time,
+                days_of_week=days_of_week,
+            )
+        hengio.save()
+        return JsonResponse({"success": True}, status=200)
+
+    else:
+        return JsonResponse({"error": "Invalid request method."}, status=405)  
+
+def scene(request):
+    sensors = Device.objects.filter(type=2)
+    relays = Device.objects.filter(type=1)
+    hengios = Hengio.objects.all()
+    setnguongs =Setnguong.objects.all()
+
+    context = {
+        'sensors': sensors,
+        'relays': relays,
+        'hengios':hengios,
+        'setnguongs': setnguongs,
+        'segment': 'index',
+    }
+    return render(request, 'home/bc_typography.html', context)
+
+def delete_hengio(request, id):
+    hengio = get_object_or_404(Hengio, id=id)
+    if request.method == 'DELETE':
+        hengio.delete()
+        return JsonResponse({'message': 'Đã xóa thành công!'}, status=200)
+    return JsonResponse({'message': 'Xóa thất bại!'}, status=400)
+
+def delete_setnguong(request, id):
+    setnguong = get_object_or_404(Setnguong, id=id)
+    if request.method == 'DELETE':
+        setnguong.delete()
+        return JsonResponse({'message': 'Đã xóa thành công!'}, status=200)
+    return JsonResponse({'message': 'Xóa thất bại!'}, status=400)
+def edit_nguong(request):
+    if request.method == "POST":
+        id =request.POST.get("id")
+        setnguong = get_object_or_404(Setnguong, id=id)
+        setnguong.api_key = request.POST.get("api_key")
+        setnguong.sensor_pin = request.POST.get("sensor_pin")
+        setnguong.sensor_name = request.POST.get("sensor_name")
+        setnguong.relay_name = request.POST.get("relay_name")
+        setnguong.relay_pin = request.POST.get("relay_pin")
+        setnguong.compare = request.POST.get("compare")
+        setnguong.compare_value = request.POST.get("compare_value")
+        setnguong.status = request.POST.get("status")
+        setnguong.time = request.POST.get("trigger_time")
+        setnguong.days_of_week = request.POST.getlist("days_of_week")
+        setnguong.save()
+        return JsonResponse({"success": True}, status=200)
+    else:
+        return JsonResponse({"error": "Invalid request method."}, status=405)
+
+def edit_gio(request):
+    if request.method == "POST":
+        id =request.POST.get("id")
+        hengio = get_object_or_404(Hengio, id=id)
+        hengio.api_key = request.POST.get("api_key")
+        hengio.api_key = request.POST.get("api_key")
+        hengio.pin = request.POST.get("pin")
+        hengio.name = request.POST.get("name")
+        hengio.status = request.POST.get("status")
+        hengio.time = request.POST.get("trigger_time")
+        hengio.days_of_week = request.POST.getlist("days_of_week")
+        hengio.save()
+        return JsonResponse({"success": True}, status=200)
+    else:
+        return JsonResponse({"error": "Invalid request method."}, status=405)
+        
+
+        
 def pages(request):
     context = {}
-    # All resource paths end in .html.
-    # Pick out the html file name from the url. And load that template.
+
     try:
 
         load_template = request.path.split('/')[-1]

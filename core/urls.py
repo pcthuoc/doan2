@@ -1,13 +1,15 @@
-# -*- encoding: utf-8 -*-
-"""
-Copyright (c) 2019 - present AppSeed.us
-"""
-
 from django.contrib import admin
-from django.urls import path, include  # add this
-
+from django.urls import path, include
+from core import consumers
+from datas import views as datas_views  
 urlpatterns = [
-    path('admin/', admin.site.urls),          # Django admin route
-    path("", include("apps.authentication.urls")), # Auth routes - login / register
-    path("", include("apps.home.urls"))             # UI Kits Html files
+    path('update/<str:api_key>/<str:pin>/', datas_views.update_value, name='update_value'),  #  http://192.168.112.130:8000/update/TEY8OO5iafAV96gRKcZohbO6ED/V8/?value=10
+    path('get/<str:api_key>/<str:pin>/', datas_views.get_value, name='get_value'),  
+    path('admin/', admin.site.urls),          
+  
+    path("", include("apps.home.urls")) ,
+ 
+
+
+                
 ]
