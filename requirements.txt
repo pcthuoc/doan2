@@ -1,4 +1,4 @@
-Django==2.2.2
+
 channels
 channels_redis
 djangorestframework
@@ -6,10 +6,8 @@ markdown==3.4.3
 django-filter==23.2
 python-decouple
 unipath
-
 django-multiselectfield
 daphne
 django-import-export
 whitenoise
-
 drf-yasg[validation]
