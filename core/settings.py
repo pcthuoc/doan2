@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'hengio',
     'setnguong',
     'backend',
-    'jobs'
+    'jobs',
+    'auto'
 ]
 
 MIDDLEWARE = [

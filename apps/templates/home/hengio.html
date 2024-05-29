@@ -40,7 +40,7 @@
 
     .edit-btn,
     .edit-btn1 {
-        color: #26af5d;
+        color: #08fc69;
         /* Màu xanh lá cây cho nút chỉnh sửa */
         font-size: 1.2em;
         text-decoration: none;
@@ -85,9 +85,12 @@
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                     data-bs-target="#CreateFormModalGio" id="ad_gio">Cài đặt hẹn giờ</button>
                 <button type="button" class="btn btn-success" data-bs-toggle="modal"
-                    data-bs-target="#CreateFormModalNguong" id="ad_nguong">Cài đặt ngưỡng</button>
+                    data-bs-target="#CreateFormModalAuto" id="add_auto">Cài đặt auto</button>
+
+
             </div>
         </div>
+
         <div class="row">
             <div class="col-md-6">
                 <div class="card">
@@ -152,52 +155,31 @@
                                 <thead>
                                     <tr>
                                         <th scope="col">#</th>
-                                        <th scope="col">Tên Sensor</th>
-                                        <th scope="col">Ngưỡng</th>
-                                        <th scope="col">Trạng thái</th>
-                                        <th scope="col">Thời gian</th>
-                                        <th scope="col">Ngày</th>
+                                        <th scope="col">Loại cây trồng</th>
                                         <th scope="col">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for setnguong in setnguongs %}
+                                    {% for auto in autos %}
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
-                                        <td>{{ setnguong.sensor_name }}</td>
+                                        <td>{{ auto.auto_name }}</td>
                                         <td>
-                                            {% if setnguong.compare == 1 %}
-                                            {{ setnguong.relay_name }} lớn hơn {{ setnguong.compare_value }}
-                                            {% else %}
-                                            {{ setnguong.relay_name }} nhỏ hơn {{ setnguong.compare_value }}
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if setnguong.status == 1 %}
-                                            Bật
-                                            {% else %}
-                                            Tắt
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ setnguong.time }}</td>
-                                        <td>{{ setnguong.days_of_week }}</td>
-                                        <td>
-                                            <a href="#" class="edit-btn1" data-id="{{ setnguong.id }}"
-                                                data-namesensor="{{ setnguong.sensor_name }}"
-                                                data-pinsensor="{{ setnguong.sensor_pin }}"
-                                                data-namerelay="{{ setnguong.relay_name }}"
-                                                data-pinrelay="{{ setnguong.relay_pin }}"
-                                                data-compare="{{ setnguong.compare }}"
-                                                data-comparevalue="{{ setnguong.compare_value }}"
-                                                data-status="{{ setnguong.status }}" data-time="{{ setnguong.time }}"
-                                                data-days="{{ setnguong.days_of_week }}">
+                                            <a href="#" class="edit-btn1" 
+                                                data-id="{{ auto.id }}"
+                                                data-auto-name="{{ auto.auto_name }}"
+                                                data-pump-choice="{{ auto.pump_choice }}"
+                                                data-van-status="{{ auto.van_status }}"
+                                                data-min-ph="{{ auto.min_ph }}"
+                                                data-max-ph="{{ auto.max_ph }}"
+                                                data-min-light="{{ auto.min_light }}">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="#" class="delete-btn"
-                                                onclick="removeItemSetnguong('{{ setnguong.id }}')">
+                                            <a href="#" class="delete-btn" onclick="removeItemAuto('{{ auto.id }}')">
                                                 <i class="fas fa-trash-alt"></i>
                                             </a>
                                         </td>
+                                        
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -207,6 +189,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
@@ -379,209 +362,106 @@
     </div>
 </div>
 
-<div class="modal fade" id="CreateFormModalNguong" tabindex="-1" aria-labelledby="FormModalLabelNguong"
-    aria-hidden="true">
+<div class="modal fade" id="CreateFormModalAuto" tabindex="-1" aria-labelledby="FormModalLabelAuto" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="FormModalLabelNguong">Cài đặt ngưỡng</h5>
+                <h5 class="modal-title" id="FormModalLabelAuto">Cài đặt Auto</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="create-form-nguong" action="{% url 'addnguong' %}" method="post">
+                <form id="create-form-auto" action="{% url 'add_auto' %}" method="post">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="recipient-name" class="col-form-label">Tên sensor:</label>
-                        <select class="form-select" name="sensor" id="sensor">
-                            {% for sensor in sensors %}
-                            <option value="{{ sensor.id }}" data-api="{{ sensor.api_key }}"
-                                data-name="{{ sensor.name }}" data-pin="{{ sensor.pin }}">{{ sensor.name }}</option>
-                            {% endfor %}
+                        <label for="auto_name" class="col-form-label">Tên cây trồng:</label>
+                        <input type="text" class="form-control" name="auto_name" id="auto_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="pump_choice" class="col-form-label">Loại bơm:</label>
+                        <select class="form-select" name="pump_choice" id="pump_choice">
+                            <option value="1">Continuous Mode (Always On)</option>
+                            <option value="2">Interval Mode (On for 5s, Off for 5s)</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="compare" class="col-form-label">Trạng thái:</label>
-                        <select class="form-select" name="compare" id="compare">
-                            <option value="1">Lớn hơn hoặc bằng</option>
-                            <option value="2">Nhỏ hơn hoặc bằng</option>
+                        <label for="van_status" class="col-form-label">Trạng thái van:</label>
+                        <select class="form-select" name="van_status" id="van_status">
+                            <option value="1">Tự động</option>
+                            <option value="2">Thủ công</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="compare_value" class="col-form-label">Giá trị so sánh:</label>
-                        <input type="text" class="form-control" name="compare_value" id="compare_value">
+                        <label for="min_ph" class="col-form-label">pH min:</label>
+                        <input type="text" class="form-control" name="min_ph" id="min_ph" required>
                     </div>
                     <div class="mb-3">
-                        <label for="edit-recipient-name" class="col-form-label">Tên relay:</label>
-                        <select class="form-select" name="relay" id="edit-relay">
-                            {% for relay in relays %}
-                            <option value="{{ relay.id }}" data-api="{{ relay.api_key }}" data-name="{{ relay.name }}"
-                                data-pin="{{ relay.pin }}">{{ relay.name }}</option>
-                            {% endfor %}
-                        </select>
+                        <label for="max_ph" class="col-form-label">pH max:</label>
+                        <input type="text" class="form-control" name="max_ph" id="max_ph" required>
                     </div>
                     <div class="mb-3">
-                        <label for="status1" class="col-form-label">Trạng thái:</label>
-                        <select class="form-select" name="status1" id="status1">
-                            <option value="1">Bật</option>
-                            <option value="2">Tắt</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="trigger_time1" class="col-form-label">Thời gian kích hoạt:</label>
-                        <input type="text" class="form-control flatpickr-time" name="trigger_time1" id="trigger_time1"
-                            autocomplete="off">
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit-days_of_week" class="col-form-label">Chọn các ngày trong tuần:</label>
-                        <div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="days_of_week" value="0"
-                                    id="edit_days_of_week0">
-                                <label class="form-check-label" for="edit_days_of_week0">Hai</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="days_of_week" value="1"
-                                    id="edit_days_of_week1">
-                                <label class="form-check-label" for="edit_days_of_week1">Ba</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="days_of_week" value="2"
-                                    id="edit_days_of_week2">
-                                <label class="form-check-label" for="edit_days_of_week2">Tư</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="days_of_week" value="3"
-                                    id="edit_days_of_week3">
-                                <label class="form-check-label" for="edit_days_of_week3">Năm</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="days_of_week" value="4"
-                                    id="edit_days_of_week4">
-                                <label class="form-check-label" for="edit_days_of_week4">Sáu</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="days_of_week" value="5"
-                                    id="edit_days_of_week5">
-                                <label class="form-check-label" for="edit_days_of_week5">Bảy</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="days_of_week" value="6"
-                                    id="edit_days_of_week6">
-                                <label class="form-check-label" for="edit_days_of_week6">Chủ Nhật</label>
-                            </div>
-                        </div>
+                        <label for="min_light" class="col-form-label">Ánh sáng min:</label>
+                        <input type="text" class="form-control" name="min_light" id="min_light" required>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer" id="ModalFooterNguong">
+            <div class="modal-footer" id="ModalFooterAuto">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <button type="button" class="btn btn-warning" id="submit-form-nguong">Thêm</button>
+                <button type="button" class="btn btn-primary" id="submit-form-auto">Thêm</button>
             </div>
         </div>
     </div>
 </div>
-<div class="modal fade" id="EditFormModalNguong" tabindex="-1" aria-labelledby="FormModalLabelEditNguong"
-    aria-hidden="true">
+<div class="modal fade" id="EditFormModalAuto" tabindex="-1" aria-labelledby="FormModalLabelAuto" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="FormModalLabelEditNguong">Chỉnh sửa ngưỡng</h5>
+                <h5 class="modal-title" id="FormModalLabelAuto">Chỉnh sửa Auto</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="edit-form-nguong" method="post" action="{% url 'edit_nguong'%}">
+                <form id="edit-form-auto" action="{% url 'edit_auto' %}" method="post">
                     {% csrf_token %}
-                    <input type="hidden" name="id" id="nguong_id" value="{{ nguong.id }}">
+                    <input type="hidden" name="id" id="edit_auto_id">
                     <div class="mb-3">
-                        <label for="recipient-name" class="col-form-label">Tên sensor:</label>
-                        <select class="form-select" name="sensor" id="sensor">
-                            {% for sensor in sensors %}
-                            <option value="{{ sensor.id }}" data-api="{{ sensor.api_key }}"
-                                data-name="{{ sensor.name }}" data-pin="{{ sensor.pin }}">{{ sensor.name }}</option>
-                            {% endfor %}
+                        <label for="edit_auto_name" class="col-form-label">Tên cây trồng:</label>
+                        <input type="text" class="form-control" name="auto_name" id="edit_auto_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_pump_choice" class="col-form-label">Loại bơm:</label>
+                        <select class="form-select" name="pump_choice" id="edit_pump_choice">
+                            <option value="1">Continuous Mode (Always On)</option>
+                            <option value="2">Interval Mode (On for 5s, Off for 5s)</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="compare" class="col-form-label">Trạng thái:</label>
-                        <select class="form-select" name="compare" id="compare">
-                            <option value="1">Lớn hơn hoặc bằng</option>
-                            <option value="2">Nhỏ hơn hoặc bằng</option>
+                        <label for="edit_van_status" class="col-form-label">Trạng thái van:</label>
+                        <select class="form-select" name="van_status" id="edit_van_status">
+                            <option value="1">Tự động</option>
+                            <option value="2">Thủ công</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="compare_value" class="col-form-label">Giá trị so sánh:</label>
-                        <input type="text" class="form-control" name="compare_value" id="compare_value">
+                        <label for="edit_min_ph" class="col-form-label">pH min:</label>
+                        <input type="text" class="form-control" name="min_ph" id="edit_min_ph" required>
                     </div>
                     <div class="mb-3">
-                        <label for="relay" class="col-form-label">Tên relay:</label>
-                        <select class="form-select" name="relay" id="relay">
-                            {% for relay in relays %}
-                            <option value="{{ relay.id }}" data-api="{{ relay.api_key }}" data-name="{{ relay.name }}"
-                                data-pin="{{ relay.pin }}">{{ relay.name }}</option>
-                            {% endfor %}
-                        </select>
+                        <label for="edit_max_ph" class="col-form-label">pH max:</label>
+                        <input type="text" class="form-control" name="max_ph" id="edit_max_ph" required>
                     </div>
                     <div class="mb-3">
-                        <label for="status1" class="col-form-label">Trạng thái:</label>
-                        <select class="form-select" name="status1" id="status1">
-                            <option value="1">Bật</option>
-                            <option value="2">Tắt</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="trigger_time1" class="col-form-label">Thời gian kích hoạt:</label>
-                        <input type="text" class="form-control flatpickr-time" name="trigger_time1" id="trigger_time1"
-                            autocomplete="off">
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit-days_of_week" class="col-form-label">Chọn các ngày trong tuần:</label>
-                        <div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="days_of_week" value="0"
-                                    id="edit_days_of_week0">
-                                <label class="form-check-label" for="edit_days_of_week0">Hai</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="days_of_week" value="1"
-                                    id="edit_days_of_week1">
-                                <label class="form-check-label" for="edit_days_of_week1">Ba</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="days_of_week" value="2"
-                                    id="edit_days_of_week2">
-                                <label class="form-check-label" for="edit_days_of_week2">Tư</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="days_of_week" value="3"
-                                    id="edit_days_of_week3">
-                                <label class="form-check-label" for="edit_days_of_week3">Năm</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="days_of_week" value="4"
-                                    id="edit_days_of_week4">
-                                <label class="form-check-label" for="edit_days_of_week4">Sáu</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="days_of_week" value="5"
-                                    id="edit_days_of_week5">
-                                <label class="form-check-label" for="edit_days_of_week5">Bảy</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="days_of_week" value="6"
-                                    id="edit_days_of_week6">
-                                <label class="form-check-label" for="edit_days_of_week6">Chủ Nhật</label>
-                            </div>
-                        </div>
+                        <label for="edit_min_light" class="col-form-label">Ánh sáng min:</label>
+                        <input type="text" class="form-control" name="min_light" id="edit_min_light" required>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer" id="ModalFooterEditNguong">
+            <div class="modal-footer" id="ModalFooterAuto">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <button type="button" class="btn btn-warning" id="submit-form-edit-nguong">Lưu thay đổi</button>
+                <button type="submit" class="btn btn-primary" id="submit-edit-form-auto">Lưu thay đổi</button>
             </div>
         </div>
     </div>
 </div>
+
 
 {% endblock content %}
 
@@ -590,6 +470,67 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
+
+    $(document).ready(function () {
+        // Xử lý khi nhấn nút "Thêm"
+        $("#submit-form-auto").click(function () {
+            // Lấy token CSRF từ form
+            var csrfToken = $('[name=csrfmiddlewaretoken]').val();
+
+            // Tạo đối tượng chứa dữ liệu form
+            var formData = {
+                'auto_name': $('#auto_name').val(),
+                'pump_choice': $('#pump_choice').val(),
+                'van_status': $('#van_status').val(),
+                'min_ph': $('#min_ph').val(),
+                'max_ph': $('#max_ph').val(),
+                'min_light': $('#min_light').val(),
+                'csrfmiddlewaretoken': csrfToken
+            };
+            console.log(formData);
+
+
+            // Gửi dữ liệu bằng AJAX
+            $.ajax({
+                type: 'POST',
+                url: '{% url "add_auto" %}',
+                data: formData,
+                success: function (data) {
+                    // Chuyển hướng sau khi thêm thành công
+                    window.location.href = "/auto";
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    // Xử lý lỗi
+                    console.log('Error:', errorThrown);
+                }
+            });
+        });
+        window.removeItemAuto = function (id) {
+            if (confirm('Bạn có chắc chắn muốn xóa mục này?')) {
+                fetch(`/delete-auto/${id}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            // alert('Đã xóa thành công!');
+                            location.reload();
+                        } else {
+                            alert('Xóa thất bại!');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Xóa thất bại!');
+                    });
+            }
+        }
+    });
+
+
     $(document).ready(function () {
         $("#submit-form-gio").click(function () {
             var csrfToken = $('[name=csrfmiddlewaretoken]').val();
@@ -621,40 +562,6 @@
                 }
             });
         });
-        $("#submit-form-nguong").click(function () {
-            var csrfToken = $('[name=csrfmiddlewaretoken]').val();
-            var daysOfWeek = [];
-            $('input[name="days_of_week"]:checked').each(function () {
-                daysOfWeek.push($(this).val());
-            });
-            var daysOfWeekString = daysOfWeek.join(',');
-
-            var formData = {
-                'sensor_pin': $('#sensor option:selected').data('pin'),
-                'sensor_name': $('#sensor option:selected').data('name'),
-                'relay_name': $('#relay option:selected').data('name'),
-                'relay_pin': $('#relay option:selected').data('pin'),
-                'api_key': $('#relay option:selected').data('api'),
-                'compare': $('#compare').val(),
-                'compare_value': $('#compare_value').val(),
-                'status': $('#status1').val(),
-                'trigger_time1': $('#trigger_time1').val(),
-                'days_of_week': daysOfWeekString,
-                'csrfmiddlewaretoken': csrfToken
-            };
-
-            $.ajax({
-                type: 'POST',
-                url: '{% url "addnguong" %}',
-                data: formData,
-                success: function (data) {
-                    window.location.href = "/scene";
-                },
-                error: function (xhr, textStatus, errorThrown) {
-                    console.log('Error:', errorThrown);
-                }
-            });
-        });
 
         window.removeItemHengio = function (id) {
             if (confirm('Bạn có chắc chắn muốn xóa mục này?')) {
@@ -667,7 +574,7 @@
                 })
                     .then(response => {
                         if (response.ok) {
-                            alert('Đã xóa thành công!');
+                            // alert('Đã xóa thành công!');
                             location.reload();
                         } else {
                             alert('Xóa thất bại!');
@@ -679,33 +586,7 @@
                     });
             }
         }
-        window.removeItemSetnguong = function (id) {
-            if (confirm('Bạn có chắc chắn muốn xóa mục này?')) {
-                fetch(`/delete-setnguong/${id}/`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    }
-                })
-                    .then(response => {
-                        if (response.ok) {
-                            alert('Đã xóa thành công!');
-                            location.reload();
-                        } else {
-                            alert('Xóa thất bại!');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Xóa thất bại!');
-                    });
-            }
-        }
-
-
     });
-    
     $(document).ready(function () {
         $('.edit-btn').click(function () {
             var id = $(this).data('id');
@@ -730,7 +611,7 @@
                 noCalendar: true,
                 dateFormat: "H:i",
                 time_24hr: true,
-                defaultDate: time ,// Set the default time
+                defaultDate: time,// Set the default time
                 minuteIncrement: 1
             });
             $('#EditFormModalGio').find('select[name="relay"] option').each(function () {
@@ -786,104 +667,49 @@
             });
         });
     });
+
     $(document).ready(function () {
-        $('.edit-btn1').click(function () {
-            var id = $(this).data('id');
-            var namesensor = $(this).data('namesensor');
-            var pinsensor = $(this).data('pinsensor');
-            var namerelay = $(this).data('namerelay');
-            var pinrelay = $(this).data('pinrelay');
-            var compare = $(this).data('compare');
-            var comparevalue = $(this).data('comparevalue');
-            var status = $(this).data('status');
-            var time = $(this).data('time');
-            var days = $(this).data('days').split(',');
+    $('.edit-btn1').click(function () {
+        var id = $(this).data('id');
+        var auto_name = $(this).data('auto-name');
+        var pump_choice = $(this).data('pump-choice');
+        var van_status = $(this).data('van-status');
+        var min_ph = $(this).data('min-ph');
+        var max_ph = $(this).data('max-ph');
+        var min_light = $(this).data('min-light');
 
-            console.log(pinrelay);
+        fillEditForm(id, auto_name, pump_choice, van_status, min_ph, max_ph, min_light);
+        $('#EditFormModalAuto').modal('show');
+    });
 
-            fillEditForm(id, namesensor, pinsensor, namerelay, pinrelay, compare, comparevalue, status, time, days);
-            $('#EditFormModalNguong').modal('show');
-        });
+    function fillEditForm(id, auto_name, pump_choice, van_status, min_ph, max_ph, min_light) {
+        $('#edit_auto_id').val(id);
+        $('#edit_auto_name').val(auto_name);
+        $('#edit_pump_choice').val(pump_choice);
+        $('#edit_van_status').val(van_status);
+        $('#edit_min_ph').val(min_ph);
+        $('#edit_max_ph').val(max_ph);
+        $('#edit_min_light').val(min_light);
+    }
 
-        function fillEditForm(id, namesensor, pinsensor, namerelay, pinrelay, compare, comparevalue, status, time, days) {
-            $('#EditFormModalNguong').find('input[name="id"]').val(id);
-            $('#EditFormModalNguong').find('input[name="pinsensor"]').val(pinsensor);
-            $('#EditFormModalNguong').find('select[name="sensor"]').val(namesensor);
-            $('#EditFormModalNguong').find('select[name="compare"]').val(compare);
-            $('#EditFormModalNguong').find('input[name="compare_value"]').val(comparevalue);
-            $('#EditFormModalNguong').find('select[name="relay"]').val(namerelay);
-            $('#EditFormModalNguong').find('select[name="status1"]').val(status);
-            $('#EditFormModalNguong').find('input[name="trigger_time1"]').flatpickr({
-                enableTime: true,
-                noCalendar: true,
-                dateFormat: "H:i",
-                time_24hr: true,
-                defaultDate: time, // Set the default time
-                minuteIncrement: 1
-            });
-            $('#EditFormModalNguong').find('select[name="relay"] option').each(function () {
-                if ($(this).data('pin') == pinrelay) {
-                    $(this).prop('selected', true);
-                }
-            });
-            $('#EditFormModalNguong').find('select[name="sensor"] option').each(function () {
-                if ($(this).data('pin') == pinsensor) {
-                    $(this).prop('selected', true);
-                }
-            });
-            // Reset all days checkboxes
-            $('#EditFormModalNguong').find('input[name="days_of_week"]').prop('checked', false);
+    $('#submit-edit-form-auto').click(function () {
+        var formData = $('#edit-form-auto').serialize();
 
-            // Set the checkboxes for the selected days
-            for (let i = 0; i < days.length; i++) {
-                var checkbox = $('#EditFormModalNguong').find('input[name="days_of_week"][value="' + i + '"]');
-                checkbox.prop('checked', true);
+        $.ajax({
+            type: "POST",
+            url: $('#edit-form-auto').attr('action'),
+            data: formData,
+            success: function (response) {
+                window.location.href = "/scene";
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.log('Error:', errorThrown);
             }
-        }
-
-        $('#submit-form-edit-nguong').click(function () {
-            // Collecting days of the week
-            var daysOfWeek = [];
-            $('#EditFormModalNguong').find('input[name="days_of_week"]:checked').each(function () {
-                daysOfWeek.push($(this).val());
-            });
-            var daysOfWeekString = daysOfWeek.join(',');
-
-            // Collecting CSRF token
-            var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
-
-            // Collecting form data
-            var formData = {
-                'id': $('#EditFormModalNguong').find('input[name="id"]').val(),
-                'sensor_pin':$('#EditFormModalNguong').find('select[name="sensor"] option:selected').data('pin'),
-                'sensor_name': $('#EditFormModalNguong').find('select[name="sensor"] option:selected').data('name'),
-                'relay_name': $('#EditFormModalNguong').find('select[name="relay"] option:selected').data('name'),
-                'relay_pin': $('#EditFormModalNguong').find('select[name="relay"] option:selected').data('pin'),
-                'api_key': $('#EditFormModalNguong').find('select[name="relay"] option:selected').data('api'),
-                'compare': $('#EditFormModalNguong').find('select[name="compare"]').val(),
-                'compare_value': $('#EditFormModalNguong').find('input[name="compare_value"]').val(),
-                'status': $('#EditFormModalNguong').find('select[name="status1"]').val(),
-                'trigger_time': $('#EditFormModalNguong').find('input[name="trigger_time1"]').val(),
-                'days_of_week': daysOfWeekString,
-                'csrfmiddlewaretoken': csrfToken
-            };
-
-            // Displaying form data in console
-            console.log(formData);
-
-            $.ajax({
-                type: "POST",
-                url: $('#edit-form-nguong').attr('action'),
-                data: formData,
-                success: function(response) {
-                    window.location.href = "/scene";
-                },
-                error: function (xhr, textStatus, errorThrown) {
-                    console.log('Error:', errorThrown);
-                }
-            });
         });
     });
+
+});
+
 
 </script>
 

@@ -12,6 +12,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
 from django.urls import reverse
 
+from auto.models import Auto
 from datas.models import Data
 from devices.models import Device
 from hengio.models import Hengio
@@ -20,7 +21,9 @@ from setnguong.models import Setnguong
 def index(request):
     sensors = Device.objects.filter(type=2)
     relays = Device.objects.filter(type=1)
-    
+    autos =Auto.objects.all()
+    autos_on = Auto.objects.filter(auto_status=1).first()
+  
 
     now = datetime.datetime.now()
     seven_days_ago = now - datetime.timedelta(days=4)
@@ -41,6 +44,8 @@ def index(request):
     context = {
         'sensors': sensors,
         'relays': relays,
+        'autos': autos,
+        'autos_on' :autos_on,
         'segment': 'index',
         'data_list_v7': json.dumps(data_list_v7),  # Serialize to JSON
         'data_list_v8': json.dumps(data_list_v8),  # Serialize to JSON
@@ -142,16 +147,31 @@ def scene(request):
     relays = Device.objects.filter(type=1)
     hengios = Hengio.objects.all()
     setnguongs =Setnguong.objects.all()
-
+    autos =Auto.objects.all()
     context = {
         'sensors': sensors,
         'relays': relays,
         'hengios':hengios,
         'setnguongs': setnguongs,
         'segment': 'index',
+        'autos': autos,
     }
-    return render(request, 'home/bc_typography.html', context)
+    return render(request, 'home/hengio.html', context)
 
+def auto(request):
+    sensors = Device.objects.filter(type=2)
+    relays = Device.objects.filter(type=1)
+    autos =Auto.objects.all()
+
+    context = {
+        'sensors': sensors,
+        'relays': relays,
+        'autos': autos,
+        
+       
+        'segment': 'index',
+    }
+    return render(request, 'home/auto.html', context)
 def delete_hengio(request, id):
     hengio = get_object_or_404(Hengio, id=id)
     if request.method == 'DELETE':
@@ -159,10 +179,10 @@ def delete_hengio(request, id):
         return JsonResponse({'message': 'Đã xóa thành công!'}, status=200)
     return JsonResponse({'message': 'Xóa thất bại!'}, status=400)
 
-def delete_setnguong(request, id):
-    setnguong = get_object_or_404(Setnguong, id=id)
+def delete_auto(request, id):
+    auto = get_object_or_404(Auto, id=id)
     if request.method == 'DELETE':
-        setnguong.delete()
+        auto.delete()
         return JsonResponse({'message': 'Đã xóa thành công!'}, status=200)
     return JsonResponse({'message': 'Xóa thất bại!'}, status=400)
 def edit_nguong(request):
@@ -199,8 +219,56 @@ def edit_gio(request):
         return JsonResponse({"success": True}, status=200)
     else:
         return JsonResponse({"error": "Invalid request method."}, status=405)
-        
 
+def edit_auto_value(request):
+    if request.method == "POST":
+        id =request.POST.get("id")
+        auto =get_object_or_404(Auto, id=id)
+        auto_value = request.POST['auto_value']
+        auto.auto_status=auto_value
+        print(request.POST['auto_value'])
+
+        auto.save()
+        return JsonResponse({"success": True}, status=200)
+    else:
+        return JsonResponse({"error": "Invalid request method."}, status=405)
+def edit_auto(request):
+    if request.method == "POST":
+        id =request.POST.get("id")
+        auto =get_object_or_404(Auto, id=id)
+
+        auto.auto_name = request.POST['auto_name']
+        auto.pump_choice = request.POST['pump_choice']
+        auto.van_status = request.POST['van_status']
+        auto.min_ph = request.POST['min_ph']
+        auto.max_ph = request.POST['max_ph']
+        auto.min_light = request.POST['min_light']
+        auto.save()
+        return JsonResponse({"success": True}, status=200)
+    else:
+        return JsonResponse({"error": "Invalid request method."}, status=405)
+def add_auto(request):
+    if request.method == 'POST':
+        auto_name = request.POST['auto_name']
+        pump_choice = request.POST['pump_choice']
+        van_status = request.POST['van_status']
+        min_ph = request.POST['min_ph']
+        max_ph = request.POST['max_ph']
+        min_light = request.POST['min_light']
+
+
+        Auto.objects.create(
+            auto_name=auto_name,
+            pump_choice=pump_choice,
+            van_status=van_status,
+            min_ph=min_ph,
+            max_ph=max_ph,
+            min_light=min_light,
+
+        )
+        return JsonResponse({"success": True}, status=200)
+
+    return render(request, 'add_auto.html')
         
 def pages(request):
     context = {}
