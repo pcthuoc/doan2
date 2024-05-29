@@ -43,3 +43,16 @@ def get_value(request, api_key, pin):
 
         return HttpResponse("Device not found.", status=404)
     
+def get_all_values(request):
+    try:
+        # Lấy tất cả các thiết bị từ V0 đến V3
+        devices = Device.objects.filter(type=1)
+        
+        # Tạo một dictionary để lưu trữ giá trị của các thiết bị
+        values = {}
+        for device in devices:
+            values[device.pin] = device.value
+        return JsonResponse(values)
+    except Exception as e:
+        # Xử lý các trường hợp ngoại lệ
+        return JsonResponse({'error': str(e)}, status=500)
