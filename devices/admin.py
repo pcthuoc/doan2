@@ -1,8 +1,9 @@
 from django.contrib import admin
 from .models import Device
 from apikey.models import APIKey
+from import_export.admin import ImportExportModelAdmin
 
-class DeviceAdmin(admin.ModelAdmin):
+class DeviceAdmin(ImportExportModelAdmin):
     """
     Custom admin for Device model.  api_key_demo
     """

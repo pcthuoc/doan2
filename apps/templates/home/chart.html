@@ -1,0 +1,416 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard {% endblock %}
+
+{% block stylesheets %}
+
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="pc-container">
+    <div class="pcoded-content">
+        <div class="row">
+            <div class="col-xl-6 col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Biểu đồ Nhiệt độ và Độ ẩm không khí</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="area-chart-1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-6 col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Biểu đồ Dữ liệu nhiệt độ nước</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="area-chart-v9"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-6 col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Dữ liệu Ánh sáng</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="area-chart-v4"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-6 col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Dữ liệu pH</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="area-chart-v5"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+<script src="/static/assets/js/plugins/apexcharts.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var data_v7 = JSON.parse('{{ data_list_v7|escapejs }}');
+        var data_v8 = JSON.parse('{{ data_list_v8|escapejs }}');
+        var data_v4 = JSON.parse('{{ data_list_v4|escapejs }}');
+        var data_v5 = JSON.parse('{{ data_list_v5|escapejs }}');
+        var data_v9 = JSON.parse('{{ data_list_v9|escapejs }}');
+
+        function sortData(data) {
+            return data.sort((a, b) => new Date(a.date) - new Date(b.date));
+        }
+
+        data_v7 = sortData(data_v7);
+        data_v8 = sortData(data_v8);
+        data_v4 = sortData(data_v4);
+        data_v5 = sortData(data_v5);
+        data_v9 = sortData(data_v9);
+
+        // Chuyển đổi thời gian từ UTC sang múi giờ +7 và định dạng lại thời gian
+        function convertToLocalDateTime(data) {
+            return data.map(item => moment(item.date).utcOffset('+0700').format('YYYY-MM-DD HH:mm'));
+        }
+
+        // Extract values and dates
+        var values_v7 = data_v7.map(item => parseFloat(item.value));
+        var dates_v7 = convertToLocalDateTime(data_v7);
+        console.log(dates_v7[dates_v7.length - 1]);
+
+        var values_v8 = data_v8.map(item => parseFloat(item.value));
+        var values_v4 = data_v4.map(item => parseFloat(item.value));
+        var dates_v4 = convertToLocalDateTime(data_v4);
+        var values_v5 = data_v5.map(item => parseFloat(item.value));
+        var dates_v5 = convertToLocalDateTime(data_v5);
+        var values_v9 = data_v9.map(item => parseFloat(item.value));
+        var dates_v9 = convertToLocalDateTime(data_v9);
+
+
+        // Biểu đồ Nhiệt độ và Độ ẩm không khí
+        var options = {
+            chart: {
+                height: 350,
+                type: 'area',
+                zoom: {
+                    enabled: true,
+                    type: 'x',
+                    autoScaleYaxis: false, // Giữ nguyên trục Y khi zoom
+                    zoomedArea: {
+                        fill: {
+                            color: '#90CAF9',
+                            opacity: 0.4
+                        },
+                        stroke: {
+                            color: '#0D47A1',
+                            opacity: 0.4,
+                            width: 1
+                        }
+                    },
+                },
+                events: {
+                    mounted: function (chartContext, config) {
+                        // Lấy các giá trị của trục x
+                        var xValues = config.globals.seriesX[0];
+
+                        // Xác định khoảng thời gian muốn zoom (ví dụ: 100 điểm cuối cùng)
+                        var startIndex = xValues.length > 100 ? xValues.length - 100 : 0;
+                        var endIndex = xValues.length - 1;
+
+                        // Thiết lập chế độ zoom ban đầu
+                        chartContext.zoomX(
+                            xValues[startIndex],
+                            xValues[endIndex]
+                        );
+                    }
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            colors: ["#ffa21d", "#EA4D4D"],
+            series: [{
+                name: 'Độ ẩm',
+                data: values_v7
+            }, {
+                name: 'Nhiệt độ',
+                data: values_v8
+            }],
+            xaxis: {
+                type: 'datetime',
+                labels: {
+                    datetimeUTC: false
+                },
+                categories: dates_v7
+            },
+            tooltip: {
+                x: {
+                    format: 'dd/MM/yy HH:mm'
+                },
+            }
+        };
+
+        var chart = new ApexCharts(
+            document.querySelector("#area-chart-1"),
+            options
+        );
+
+        chart.render();
+
+        // Biểu đồ cho dữ liệu Ánh sáng
+        var options_v4 = {
+            chart: {
+                height: 300,
+                type: 'area',
+                zoom: {
+                    enabled: true,
+                    type: 'x',
+                    autoScaleYaxis: false, // Giữ nguyên trục Y khi zoom
+                    zoomedArea: {
+                        fill: {
+                            color: '#90CAF9',
+                            opacity: 0.4
+                        },
+                        stroke: {
+                            color: '#0D47A1',
+                            opacity: 0.4,
+                            width: 1
+                        }
+                    },
+                },
+
+                events: {
+                    mounted: function (chartContext, config) {
+                        // Lấy các giá trị của trục x
+                        var xValues = config.globals.seriesX[0];
+
+                        // Xác định khoảng thời gian muốn zoom (ví dụ: 100 điểm cuối cùng)
+                        var startIndex = xValues.length > 100 ? xValues.length - 100 : 0;
+                        var endIndex = xValues.length - 1;
+
+                        // Thiết lập chế độ zoom ban đầu
+                        chartContext.zoomX(
+                            xValues[startIndex],
+                            xValues[endIndex]
+                        );
+                    }
+                }
+            },
+            dataLabels: {
+                enabled: false,
+                width: 1,
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            colors: ["#7267EF"],
+            series: [{
+                name: "Ánh sáng",
+                data: values_v4
+            }],
+            grid: {
+                row: {
+                    colors: ['#f3f6ff', 'transparent'],
+                    opacity: 0.5
+                },
+            },
+            xaxis: {
+                type: 'datetime',
+                labels: {
+                    datetimeUTC: false
+                },
+                categories: dates_v4
+            },
+
+
+            tooltip: {
+                x: {
+                    format: 'dd/MM/yy HH:mm'
+                },
+            }
+        };
+
+        var chart_v4 = new ApexCharts(
+            document.querySelector("#area-chart-v4"),
+            options_v4
+        );
+        chart_v4.render();
+
+        // Biểu đồ cho dữ liệu pH
+        var options_v5 = {
+            chart: {
+                height: 300,
+                type: 'area',
+                zoom: {
+                    enabled: true,
+                    type: 'x',
+                    autoScaleYaxis: false, // Giữ nguyên trục Y khi zoom
+                    zoomedArea: {
+                        fill: {
+                            color: '#90CAF9',
+                            opacity: 0.4
+                        },
+                        stroke: {
+                            color: '#0D47A1',
+                            opacity: 0.4,
+                            width: 1
+                        }
+                    },
+                },
+                events: {
+                    mounted: function (chartContext, config) {
+                        // Lấy các giá trị của trục x
+                        var xValues = config.globals.seriesX[0];
+
+                        // Xác định khoảng thời gian muốn zoom (ví dụ: 100 điểm cuối cùng)
+                        var startIndex = xValues.length > 100 ? xValues.length - 100 : 0;
+                        var endIndex = xValues.length - 1;
+
+                        // Thiết lập chế độ zoom ban đầu
+                        chartContext.zoomX(
+                            xValues[startIndex],
+                            xValues[endIndex]
+                        );
+                    }
+                }
+            },
+            dataLabels: {
+                enabled: false,
+                width: 1,
+            },
+            stroke: {
+                curve: 'smooth',
+            },
+            colors: ["#7267EF"],
+            series: [{
+                name: "pH",
+                data: values_v5
+            }],
+            tooltip: {
+                x: {
+                    format: 'dd/MM/yy HH:mm'
+                },
+            },
+            grid: {
+                row: {
+                    colors: ['#f3f6ff', 'transparent'],
+                    opacity: 0.5
+                },
+            },
+            xaxis: {
+                type: 'datetime',
+                labels: {
+                    datetimeUTC: false
+                },
+                categories: dates_v5
+            },
+            yaxis: {
+                min: 0, // Bắt đầu từ 0
+
+                forceNiceScale: true, // Tự động điều chỉnh khoảng cách giữa các giá trị trên trục Y
+            },
+        };
+
+        var chart_v5 = new ApexCharts(
+            document.querySelector("#area-chart-v5"),
+            options_v5
+        );
+        chart_v5.render();
+
+        // Biểu đồ cho dữ liệu nhiệt độ nước
+        var options_v9 = {
+            chart: {
+                height: 300,
+                type: 'area',
+                zoom: {
+                    enabled: true,
+                    type: 'x',
+                    autoScaleYaxis: false, // Giữ nguyên trục Y khi zoom
+                    zoomedArea: {
+                        fill: {
+                            color: '#90CAF9',
+                            opacity: 0.4
+                        },
+                        stroke: {
+                            color: '#0D47A1',
+                            opacity: 0.4,
+                            width: 1
+                        }
+                    },
+                },
+                events: {
+                    mounted: function (chartContext, config) {
+                        // Lấy các giá trị của trục x
+                        var xValues = config.globals.seriesX[0];
+
+                        // Xác định khoảng thời gian muốn zoom (ví dụ: 100 điểm cuối cùng)
+                        var startIndex = xValues.length > 100 ? xValues.length - 100 : 0;
+                        var endIndex = xValues.length - 1;
+
+                        // Thiết lập chế độ zoom ban đầu
+                        chartContext.zoomX(
+                            xValues[startIndex],
+                            xValues[endIndex]
+                        );
+                    }
+                }
+            },
+            dataLabels: {
+                enabled: false,
+                width: 1,
+            },
+            stroke: {
+                curve: 'smooth',
+            },
+            colors: ["#7267EF"],
+            series: [{
+                name: "Nhiệt độ nước",
+                data: values_v9
+            }],
+            tooltip: {
+                x: {
+                    format: 'dd/MM/yy HH:mm'
+                },
+            },
+            grid: {
+                row: {
+                    colors: ['#f3f6ff', 'transparent'],
+                    opacity: 0.5
+                },
+            },
+            xaxis: {
+                type: 'datetime',
+                labels: {
+                    datetimeUTC: false
+                },
+                categories: dates_v9
+            },
+            yaxis: {
+                min: 0, // Bắt đầu từ 0
+
+                forceNiceScale: true, // Tự động điều chỉnh khoảng cách giữa các giá trị trên trục Y
+            },
+        };
+
+        var chart_v9 = new ApexCharts(
+            document.querySelector("#area-chart-v9"),
+            options_v9
+        );
+        chart_v9.render();
+    });
+</script>
+{% endblock javascripts %}

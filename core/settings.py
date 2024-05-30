@@ -38,8 +38,6 @@ INSTALLED_APPS = [
     'devices',
     'import_export',
     'hengio',
-    'setnguong',
-    'backend',
     'jobs',
     'auto'
 ]
@@ -102,7 +100,7 @@ DATABASES = {
         'NAME': 'db.sqlite3',
     }
 }
-
+DATA_UPLOAD_MAX_NUMBER_FIELDS =10000
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
@@ -132,7 +130,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/

@@ -14,13 +14,12 @@ urlpatterns = [
     path('scene/', views.scene, name = 'scene'),
     path('auto/', views.auto, name = 'auto'),
     path('addgio/', views.addgio , name = 'addgio'),
+    path('chart/', views.chart , name = 'chart'),
     path('add_auto/', views.add_auto, name='add_auto'),
 
-    
-    path('addnguong/', views.addnguong , name = 'addnguong'),
+
     path('delete-hengio/<int:id>/', views.delete_hengio, name='delete_hengio'),
     path('delete-auto/<int:id>/', views.delete_auto, name='delete_auto'),
-    path('edit-nguong/', views.edit_nguong, name='edit_nguong'),
     path('edit-gio/', views.edit_gio, name='edit_gio'),
     path('edit-auto/', views.edit_auto, name='edit_auto'),   
     path('edit-auto-value/', views.edit_auto_value, name='edit_auto_value'),
