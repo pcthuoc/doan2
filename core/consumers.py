@@ -1,5 +1,5 @@
-import json
 from channels.generic.websocket import AsyncWebsocketConsumer
+import json
 
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -19,6 +19,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         data = json.loads(text_data)
         message = data['message']
+        print("Received message from client:", message)
         await self.channel_layer.group_send(
             self.group_name,
             {
@@ -27,8 +28,53 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             }
         )
 
+
     async def send_notification(self, event):
         message = event['message']
         await self.send(text_data=json.dumps({
             'message': message
+        }))
+
+class RelayConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.group_name = 'updates'
+        await self.channel_layer.group_add(
+            self.group_name,
+            self.channel_name
+        )
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.group_name,
+            self.channel_name
+        )
+
+    async def send_update(self, event):
+        pin = event['pin']
+        value = event['value']
+        await self.send(text_data=json.dumps({
+            pin: value
+        }))
+
+class SensorConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.group_name = 'updates'
+        await self.channel_layer.group_add(
+            self.group_name,
+            self.channel_name
+        )
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.group_name,
+            self.channel_name
+        )
+
+    async def send_update(self, event):
+        pin = event['pin']
+        value = event['value']
+        await self.send(text_data=json.dumps({
+            pin: value
         }))
