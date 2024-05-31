@@ -128,9 +128,6 @@ def chart(request):
     
     # Fetch data for each sensor from the database
     data_v7 = Data.objects.filter(pin='V7', date__gte=seven_days_ago).values('value', 'date')
-
-    for i in range(2):
-        print(f"data_list_v7[{i}]: {data_v7[i]}")
     data_v8 = Data.objects.filter(pin='V8', date__gte=seven_days_ago).values('value', 'date')
     data_v4 = Data.objects.filter(pin='V4', date__gte=seven_days_ago).values('value', 'date')
     data_v5 = Data.objects.filter(pin='V5', date__gte=seven_days_ago).values('value', 'date')
@@ -147,9 +144,6 @@ def chart(request):
     data_list_v5 = serialize_data(data_v5)
     data_list_v9 = serialize_data(data_v9)
 
-    for i in range(2):
-        print(f"data_list_v7[{i}]: {data_list_v7[i]}")
-    # Prepare context for the template
     context = {
         'segment': 'index',
         'data_list_v7': json.dumps(data_list_v7),  # Serialize to JSON

@@ -6,6 +6,8 @@ from devices.models import Device
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
+
+
 def update_value(request, api_key, pin):
     api_key = str(api_key)
     pin = str(pin)
@@ -33,6 +35,8 @@ def update_value(request, api_key, pin):
             return HttpResponse("No value provided.", status=400)
     except Http404:
         return HttpResponse("Device not found.", status=404)
+    
+
 def update_sensor(request, api_key, pin):
     api_key = str(api_key)
     pin = str(pin)
@@ -42,24 +46,30 @@ def update_sensor(request, api_key, pin):
         value = request.GET.get('value')
         
         if value:
-            device.value = value
-            device.save()
-            Data.objects.create(api_key=api_key, pin=pin, name=device.name, value=device.value, date=timezone.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-                # Gửi thông báo đến consumer NotificationConsumer
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
+            current_time = timezone.datetime.now()
+            last_update = Data.objects.filter(api_key=api_key, pin=pin).order_by('-date').first()
+            if not last_update or (current_time - last_update.date).total_seconds() >= 60:
+                device.value = value
+                device.save()
+                Data.objects.create(api_key=api_key, pin=pin, name=device.name, value=device.value,  date=timezone.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
                     'notifications',  
                     {
                         'type': 'send_notification',
-                        'message': "ghihihih" 
+                        'message': "ghihihih"
                     }
                 )
-            return HttpResponse("ok")
+                return HttpResponse("ok")
+            else:
+                return HttpResponse("Value updated less than a minute ago.", status=429) 
         else:
             return HttpResponse("No value provided.", status=400)
     except Http404:
         return HttpResponse("Device not found.", status=404)
-
+    except Exception as e:
+        return HttpResponse(f"An error occurred: {str(e)}", status=500)
+    
 
 def update_multi(request):
     if request.method == 'GET':
