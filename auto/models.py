@@ -3,7 +3,7 @@ from multiselectfield import MultiSelectField
 
 class Auto(models.Model):
     ON = 1
-    OFF = 2
+    OFF = 0
     VALUE_TYPE_CHOICES = (
         (ON, 'On'),
         (OFF, 'Off'),

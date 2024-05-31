@@ -6,7 +6,7 @@ from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler.schedulers.blocking import BlockingScheduler
 import time
 
-from jobs.task import check_hengio_tasks
+from jobs.task import auto_van_task, check_auto_tasks, check_hengio_tasks, auto_pump_task
 
 django.setup()
 
@@ -22,7 +22,7 @@ def create_scheduler():
     }
     job_defaults = {
         'coalese': True,
-        'max_instances': 3,
+        'max_instances': 5,
         'misfire_grace_time': 60
     }
     scheduler = BlockingScheduler(jobstores=jobstores,
@@ -33,7 +33,10 @@ def create_scheduler():
 
 
 def config_job(scheduler):
-    scheduler.add_job(schedule_complete_event, 'interval', seconds=5)
+    scheduler.add_job(schedule_complete_event, 'interval', seconds=20)
+    scheduler.add_job(schedule_interval_auto, 'interval', seconds=5)
+    scheduler.add_job(schedule_interval_pump_event, 'interval', seconds=5)  # Thêm tác vụ 9 giây
+    scheduler.add_job(schedule_van_auto, 'interval', seconds=1)
     return scheduler
 
 
@@ -49,11 +52,30 @@ def start_scheduler():
             time.sleep(10)
    
 
-
 def schedule_complete_event():
-
-    print('---Start scheduler')
+    print('---task hen gio')
     # Auto start event
     epoch_time_now = int((datetime.now() - datetime(1970, 1, 1)).total_seconds())
     print('Time: ', epoch_time_now)
     check_hengio_tasks()
+
+def schedule_van_auto():
+    print('---task van')
+    # Auto start event
+    epoch_time_now = int((datetime.now() - datetime(1970, 1, 1)).total_seconds())
+    print('Time: ', epoch_time_now)
+    auto_van_task()
+def schedule_interval_auto():
+    print('---task auto')
+    # Auto start event
+    epoch_time_now = int((datetime.now() - datetime(1970, 1, 1)).total_seconds())
+    print('Time: ', epoch_time_now)
+    check_auto_tasks()
+
+def schedule_interval_pump_event():
+    print('---Start interval pump scheduler')
+    # Auto start event
+    epoch_time_now = int((datetime.now() - datetime(1970, 1, 1)).total_seconds())
+    print('Time: ', epoch_time_now)
+    auto_pump_task()
+

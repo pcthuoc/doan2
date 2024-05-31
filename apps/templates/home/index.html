@@ -8,8 +8,7 @@
         display: none;
     }
 
-    .toggle-label,
-    .toggle-label1 {
+    .toggle-label {
         display: block;
         width: 50px;
         height: 30px;
@@ -19,8 +18,7 @@
         cursor: pointer;
     }
 
-    .toggle-label::after,
-    .toggle-label1::after {
+    .toggle-label::after {
         content: '';
         position: absolute;
         top: 1px;
@@ -32,18 +30,15 @@
         transition: all 0.3s;
     }
 
-    .toggle-switch:checked + .toggle-label,
-    .toggle-switch:checked + .toggle-label1 {
+    .toggle-switch:checked + .toggle-label {
         background-color: #ff3e20;
     }
 
-    .toggle-switch:checked + .toggle-label::after,
-    .toggle-switch:checked + .toggle-label1::after {
+    .toggle-switch:checked + .toggle-label::after {
         left: calc(100% - 2px);
         transform: translateX(-100%);
     }
 </style>
-
 {% endblock stylesheets %}
 
 {% block content %}
@@ -121,7 +116,7 @@
                             <div class="col-auto">
                                 <!-- Nút bật/tắt tự động -->
                                 <input type="checkbox" id="auto-toggle" class="toggle-switch" {% if autos_on %}checked{% endif %} data-auto-status="{% if autos_on %}{{ autos_on.auto_status }}{% endif %}">
-                                <label for="auto-toggle" class="toggle-label1"></label>
+                                <label for="auto-toggle" class="toggle-label"></label>
                             </div>
                         </form>
                     </div>
@@ -139,64 +134,38 @@
 
 <script>
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    var alertShown = false; // Biến để kiểm tra xem cảnh báo đã được hiển thị hay không
+    let alertShown = false; // Biến để kiểm tra xem cảnh báo đã được hiển thị hay không
+    let previousCropId = document.getElementById('auto-select').value; // Lưu giá trị cây trồng trước khi thay đổi
 
-document.getElementById('auto-toggle').addEventListener('change', function() {
-    var selectedCropId = document.getElementById('auto-select').value; // Get the selected crop id
-    if (!selectedCropId) {
-        alertShown = true; // Set alertShown to true if alert is shown
-        alert("Vui lòng chọn cây trồng trước khi thực hiện thao tác."); // Alert if no crop is selected
-        this.checked = !this.checked; // Revert checkbox state
-        return; // Stop further execution
-    } else if (alertShown) {
-        alertShown = false; // Reset alertShown if alert is dismissed
-    }
-
-    if (this.checked) {
-        var confirmEnable = confirm("Bạn muốn bật?");
-        if (!confirmEnable) {
-            this.checked = false; // If the user cancels, keep the previous state
-        } else {
-            // Perform action when enabled
-            console.log("Bật thành công! ID của cây trồng: " + selectedCropId);
-            // Send the selected crop id to the server
-            var formData = new FormData();
-            formData.append('id', selectedCropId);
-            formData.append('auto_value', 1); // Assuming you're setting auto_value to 'true' when enabled
-            console.log(selectedCropId);
-            fetch("{% url 'edit_auto_value' %}", {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrftoken
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+    document.getElementById('auto-toggle').addEventListener('change', function() {
+        const selectedCropId = document.getElementById('auto-select').value;
+        if (!selectedCropId) {
+            alertShown = true;
+            alert("Vui lòng chọn cây trồng trước khi thực hiện thao tác.");
+            this.checked = !this.checked;
+            return;
+        } else if (alertShown) {
+            alertShown = false;
         }
-    } else {
-        var confirmDisable = confirm("Bạn muốn tắt?");
-        if (!confirmDisable) {
-            this.checked = true; // If the user cancels, keep the previous state
-        } else {
-            // Perform action when disabled
-            console.log("Tắt thành công! ID của cây trồng: " + selectedCropId);
-            // Send the selected crop id to the server
-            var formData = new FormData();
-            formData.append('id', selectedCropId);
-            formData.append('auto_value', 2); // Assuming you're setting auto_value to 'false' when disabled
-            console.log(formData);
-            fetch("{% url 'edit_auto_value' %}", {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrftoken
-                },
-                body: formData
+
+        if (this.checked) {
+            const confirmEnable = confirm("Bạn muốn bật?");
+            if (!confirmEnable) {
+                this.checked = false;
+            } else {
+                // Perform action when enabled
+                console.log("Bật thành công! ID của cây trồng: " + selectedCropId);
+                // Send the selected crop id to the server
+                const formData = new FormData();
+                formData.append('id', selectedCropId);
+                formData.append('auto_value', 1); // Set auto_value to 'true' when enabled
+                console.log(selectedCropId);
+                fetch("{% url 'edit_auto_value' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -206,7 +175,44 @@ document.getElementById('auto-toggle').addEventListener('change', function() {
                     console.error('Error:', error);
                 });
             }
+        } else {
+            const confirmDisable = confirm("Bạn muốn tắt?");
+            if (!confirmDisable) {
+                this.checked = true;
+            } else {
+                // Perform action when disabled
+                console.log("Tắt thành công! ID của cây trồng: " + selectedCropId);
+                // Send the selected crop id to the server
+                const formData = new FormData();
+                formData.append('id', selectedCropId);
+                formData.append('auto_value', 2); // Set auto_value to 'false' when disabled
+                console.log(formData);
+                fetch("{% url 'edit_auto_value' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+            }
+    });
+
+    document.getElementById('auto-select').addEventListener('change', function() {
+        const autoToggle = document.getElementById('auto-toggle');
+        if (autoToggle.checked) {
+            alert("Đang ở chế độ tự động, vui lòng tắt chế độ tự động trước khi chọn cây trồng khác.");
+            this.value = previousCropId; // Reset lại giá trị của cây trồng
+            return;
         }
+        previousCropId = this.value; // Cập nhật giá trị cây trồng mới khi thay đổi thành công
     });
 
     const ws = new WebSocket('ws://' + window.location.host + '/ws/notifications/');
@@ -234,14 +240,15 @@ document.getElementById('auto-toggle').addEventListener('change', function() {
             $('#relays').html($(data).find('#relays').html());
         });
     }
+
     function toggleRelay(relayId, relayPin, apikey) {
         const autoToggle = document.getElementById('auto-toggle');
-            if (autoToggle.checked && event.target.id !== 'auto-toggle-label') { 
-                // Kiểm tra nếu chế độ tự động đang bật và nút bấm không phải là nút tự động
-                alert("Đang ở chế độ tự động, vui lòng tắt chế độ tự động trước khi điều khiển.");
-                event.preventDefault();
-                return;
-            }
+        if (autoToggle.checked && event.target.id !== 'auto-toggle-label') { 
+            // Kiểm tra nếu chế độ tự động đang bật và nút bấm không phải là nút tự động
+            alert("Đang ở chế độ tự động, vui lòng tắt chế độ tự động trước khi điều khiển.");
+            event.preventDefault();
+            return;
+        }
         const relayCheckbox = document.getElementById('relay-toggle-' + relayId);
         const value = relayCheckbox.checked ? 0 : 1;
         const url = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/update/${apikey}/${relayPin}/?value=${value}`;
@@ -259,4 +266,3 @@ document.getElementById('auto-toggle').addEventListener('change', function() {
     }
 </script>
 {% endblock javascripts %}
-

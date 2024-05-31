@@ -29,7 +29,13 @@ def update_value(request, api_key, pin):
                         'value': device.value
                     }
                 )
-
+            async_to_sync(channel_layer.group_send)(
+                    'notifications',  
+                    {
+                        'type': 'send_notification',
+                        'message': "ghihihih"
+                    }
+                )
             return HttpResponse("ok")
         else:
             return HttpResponse("No value provided.", status=400)
@@ -48,21 +54,24 @@ def update_sensor(request, api_key, pin):
         if value:
             current_time = timezone.datetime.now()
             last_update = Data.objects.filter(api_key=api_key, pin=pin).order_by('-date').first()
-            if not last_update or (current_time - last_update.date).total_seconds() >= 60:
-                device.value = value
-                device.save()
-                Data.objects.create(api_key=api_key, pin=pin, name=device.name, value=device.value,  date=timezone.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-                channel_layer = get_channel_layer()
-                async_to_sync(channel_layer.group_send)(
+            device.value = value
+            device.save()
+            channel_layer = get_channel_layer()
+
+            async_to_sync(channel_layer.group_send)(
                     'notifications',  
                     {
                         'type': 'send_notification',
                         'message': "ghihihih"
                     }
                 )
+            if not last_update or (current_time - last_update.date).total_seconds() >= 60:
+
+                Data.objects.create(api_key=api_key, pin=pin, name=device.name, value=device.value,  date=timezone.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                 return HttpResponse("ok")
             else:
-                return HttpResponse("Value updated less than a minute ago.", status=429) 
+                return HttpResponse("ok")
+
         else:
             return HttpResponse("No value provided.", status=400)
     except Http404:

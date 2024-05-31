@@ -12,7 +12,6 @@ urlpatterns = [
     path('', views.index, name='home'),
     
     path('scene/', views.scene, name = 'scene'),
-    path('auto/', views.auto, name = 'auto'),
     path('addgio/', views.addgio , name = 'addgio'),
     path('chart/', views.chart , name = 'chart'),
     path('add_auto/', views.add_auto, name='add_auto'),
