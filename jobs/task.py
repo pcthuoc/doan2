@@ -110,27 +110,27 @@ def check_auto_tasks():
         else:
             print("No light sensor found with pin V4")
 def auto_pump_task():
-    while True:
-        autos = Auto.objects.filter(auto_status=Auto.ON)
-        if not autos.exists():
-            print("Không tìm thấy thiết bị với trạng thái ON. Thoát khỏi nhiệm vụ.")
-            return
+    autos = Auto.objects.filter(auto_status=Auto.ON)
+    if not autos.exists():
+        print("Không tìm thấy thiết bị với trạng thái ON. Thoát khỏi nhiệm vụ.")
+        return
 
-        ip = get_local_ip()
+    ip = get_local_ip()
       #  print(f"Địa chỉ IP cục bộ: {ip}")
 
-        for auto in autos:
-         
-            print(f"Xử lý thiết bị: {auto.auto_name}")
+    for auto in autos:
 
-            if auto.pump_choice == Auto.INTERVAL:
+        print(f"Xử lý thiết bị: {auto.auto_name}")
+
+        if auto.pump_choice == Auto.INTERVAL:
+            relay_van = Device.objects.get(pin='V0')
+            if relay_van.value =="0":
                 control_device(ip, auto.api_key, auto.pump_pin, Auto.ON)
-                sleep(10)
-                control_device(ip, auto.api_key, auto.pump_pin, Auto.OFF)
-                sleep(10)
             else:
-                print("Phát hiện tùy chọn không phải là INTERVAL. Kết thúc nhiệm vụ.")
-                return
+                control_device(ip, auto.api_key, auto.pump_pin, Auto.OFF)
+        else:
+            print("Phát hiện tùy chọn không phải là INTERVAL. Kết thúc nhiệm vụ.")
+        return
 def control_device(device_ip, api_key, pin, value):
     url = f'http://{device_ip}:8000/update/{api_key}/{pin}/?value={value}'
     response = requests.get(url)

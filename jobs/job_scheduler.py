@@ -22,7 +22,7 @@ def create_scheduler():
     }
     job_defaults = {
         'coalese': True,
-        'max_instances': 5,
+        'max_instances': 100,
         'misfire_grace_time': 60
     }
     scheduler = BlockingScheduler(jobstores=jobstores,
@@ -35,7 +35,7 @@ def create_scheduler():
 def config_job(scheduler):
     scheduler.add_job(schedule_complete_event, 'interval', seconds=20)
     scheduler.add_job(schedule_interval_auto, 'interval', seconds=5)
-    scheduler.add_job(schedule_interval_pump_event, 'interval', seconds=5)  # Thêm tác vụ 9 giây
+    scheduler.add_job(schedule_interval_pump_event, 'interval', seconds=10)  # Thêm tác vụ 9 giây
     scheduler.add_job(schedule_van_auto, 'interval', seconds=1)
     return scheduler
 
