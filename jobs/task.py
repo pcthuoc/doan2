@@ -125,9 +125,9 @@ def auto_pump_task():
 
             if auto.pump_choice == Auto.INTERVAL:
                 control_device(ip, auto.api_key, auto.pump_pin, Auto.ON)
-                sleep(5)
+                sleep(10)
                 control_device(ip, auto.api_key, auto.pump_pin, Auto.OFF)
-                sleep(5)
+                sleep(10)
             else:
                 print("Phát hiện tùy chọn không phải là INTERVAL. Kết thúc nhiệm vụ.")
                 return
