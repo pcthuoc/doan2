@@ -12,4 +12,7 @@ django-multiselectfield
 daphne
 django-import-export
 whitenoise
+apscheduler
+requests
+python-decouple
 drf-yasg[validation]
