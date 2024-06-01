@@ -17,15 +17,12 @@ def get_local_ip():
     return local_ip
 
 def check_hengio_tasks():
-    # Lấy ngày và giờ hiện tại từ Django timezone
+
     today = timezone.datetime.now()
     current_time = today.time()
-    current_day = today.weekday()  # 0 = Monday, 1 = Tuesday, ..., 6 = Sunday
+    current_day = today.weekday()  
 
-    # Lấy tất cả các đối tượng Hengio
     hengios = Hengio.objects.all()
-    print(current_time)
-    # Duyệt qua từng đối tượng và kiểm tra điều kiện
     for hengio in hengios:
         days_of_week_nums = [int(day) for day in hengio.days_of_week]
         if current_day in days_of_week_nums and hengio.time.hour == current_time.hour and hengio.time.minute == current_time.minute:
@@ -36,7 +33,7 @@ def check_hengio_tasks():
 def auto_van_task():
     autos = Auto.objects.filter(auto_status=Auto.ON)
     if not autos.exists():
-        print("Không tìm thấy thiết bị với trạng thái ON. Thoát khỏi nhiệm vụ.")
+      #  print("Không tìm thấy thiết bị với trạng thái ON. Thoát khỏi nhiệm vụ.")
         return
 
     ip = get_local_ip()
@@ -69,7 +66,7 @@ def check_auto_tasks():
         # Control van
         sensor_water = Device.objects.get(pin='V6')
         
-        if sensor_water.value=='1':
+        if sensor_water.value=='1.00':
             if auto.van_status == Auto.ON:
                 control_device(ip, auto.api_key, auto.van_pin, Auto.ON)
      #       print(f"Controlled van: {auto.van_pin} with status: {auto.van_status}")
@@ -98,9 +95,9 @@ def check_auto_tasks():
         if sensors_light.exists():
             sensor_light_value = float(sensors_light.first().value)
             min_light = float(auto.min_light)
-          #  print(f"Sensor light value: {sensor_light_value}, Min light: {min_light}")
+            print(f"Sensor light value: {sensor_light_value}, Min light: {min_light}")
             device = Device.objects.get(pin='V2')
-         #   print(device.value)
+            print(device.value)
             if sensor_light_value < min_light and device.value == '0':
                 control_device(ip, auto.api_key, auto.light_pin, Auto.ON)
         #        print(f"Controlled light: {auto.light_pin} with status: {Auto.ON}")
