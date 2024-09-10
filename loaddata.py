@@ -6,7 +6,7 @@ import pytz
 # Configurations
 time_zone = pytz.timezone('Asia/Ho_Chi_Minh')
 end_date = datetime.now(time_zone)
-print(end_date)
+
 start_date = end_date - timedelta(days=4)
 time_interval = timedelta(minutes=5)
 api_key = 'TEY8OO5iafAV96gRKcZohbO6ED'
@@ -56,4 +56,4 @@ with open('sensors_data.csv', 'w', newline='') as csvfile:
     csvwriter.writerow(['api_key', 'pin', 'name', 'value', 'date'])
     csvwriter.writerows(data)
 
-print(f"Generated {len(data)} rows of data")
+

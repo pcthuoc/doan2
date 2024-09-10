@@ -12,13 +12,15 @@ urlpatterns = [
     path('', views.index, name='home'),
     
     path('scene/', views.scene, name = 'scene'),
+    path('listdevice/', views.listdevice, name = 'listdevice'),
     path('addgio/', views.addgio , name = 'addgio'),
     path('chart/', views.chart , name = 'chart'),
     path('add_auto/', views.add_auto, name='add_auto'),
-
-
+    path('add_device/', views.add_device, name='add_device'),
+    path('device_edit/', views.device_edit, name='device_edit'),
     path('delete-hengio/<int:id>/', views.delete_hengio, name='delete_hengio'),
     path('delete-auto/<int:id>/', views.delete_auto, name='delete_auto'),
+    path('delete_device/<str:pin>/', views.delete_device, name='delete_device'),
     path('edit-gio/', views.edit_gio, name='edit_gio'),
     path('edit-auto/', views.edit_auto, name='edit_auto'),   
     path('edit-auto-value/', views.edit_auto_value, name='edit_auto_value'),

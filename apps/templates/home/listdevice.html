@@ -1,0 +1,365 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Quản lý thiết bị{% endblock %}
+
+{% block stylesheets %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<style>
+    /* Danh sách mục */
+    .list-items {
+        list-style-type: none; /* Xóa kiểu danh sách */
+        padding: 0; /* Xóa padding */
+        margin: 0; /* Xóa margin */
+    }
+
+    .list-items .item {
+        padding: 10px; /* Khoảng cách trong mục */
+        font-size: 16px; /* Kích thước chữ */
+        cursor: pointer; /* Con trỏ chuột khi di qua mục */
+        display: flex; /* Sử dụng flexbox */
+        align-items: center; /* Căn giữa theo chiều dọc */
+    }
+
+    .list-items .item .check-icon {
+        margin-right: 8px; /* Khoảng cách bên phải của biểu tượng kiểm tra */
+    }
+
+    .list-items .item.selected {
+        background-color: #e0e0e0; /* Màu nền cho mục được chọn */
+        color: #ff0000; /* Màu chữ cho mục được chọn */
+    }
+
+    /* Nút chỉnh sửa */
+    .edit-btn,
+    .edit-btn1 {
+        color: #08fc69; /* Màu xanh lá cây cho nút chỉnh sửa */
+        font-size: 1.2em; /* Kích thước chữ */
+        text-decoration: none; /* Xóa gạch dưới */
+        margin-right: 20px; /* Khoảng cách giữa các nút */
+    }
+
+    .edit-btn:hover,
+    .edit-btn1:hover {
+        color: #26af5d71; /* Màu xanh lá cây đậm hơn khi hover */
+    }
+
+    /* Nút xóa */
+    .delete-btn {
+        color: #eb5765; /* Màu đỏ cho nút xóa */
+        font-size: 1.2em; /* Kích thước chữ */
+        text-decoration: none; /* Xóa gạch dưới */
+    }
+
+    .delete-btn:hover {
+        color: #eb576656; /* Màu đỏ đậm hơn khi hover */
+    }
+
+    /* Căn giữa nội dung ô bảng */
+    .table td {
+        vertical-align: middle;
+    }
+
+    .api-key-button {
+        background-color: #5a9be1; /* Màu nền của nút */
+        border: none; /* Xóa viền */
+        color: #fff; /* Màu chữ */
+        padding: 10px 20px; /* Khoảng cách trong nút */
+        font-size: 16px; /* Kích thước chữ */
+        cursor: default; /* Đổi con trỏ khi di chuột qua */
+        text-align: center; /* Căn giữa văn bản */
+        display: inline-block; /* Hiển thị như nút */
+        user-select: text; /* Cho phép chọn văn bản */
+        pointer-events: none; /* Tắt tất cả các sự kiện con chuột */
+        border-radius: 0.375rem; /* Bo góc giống như nút bấm */
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* Bóng đổ giống như nút bấm */
+        font-weight: 500; /* Đậm chữ giống như nút bấm */
+    }
+    
+    .api-key-button:hover {
+        background-color: rgba(0, 87, 179, 0.918); /* Màu nền khi hover */
+        text-decoration: none; /* Không gạch chân chữ */
+    }
+
+</style>
+
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="pc-container">
+    <div class="pcoded-content">
+        <div class="d-flex">
+            <div>
+                <h1 class="mt-4">Quản lý thiết bị</h1>
+            </div>
+            <div class="ms-auto mt-4">
+                <button type="button" class="api-key-button">API: {{ api_key }}</button>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                    data-bs-target="#CreateFormModalDevice" id="add_device">Thêm thiết bị</button>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body table-border-style">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Tên thiết bị</th>
+                                    <th scope="col">Loại</th>
+                                    <th scope="col">Giá trị ảo</th>
+                                    <th scope="col">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for device in devices %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ device.name }}</td>
+                                    <td>
+                                        {% if device.type == 1 %}
+                                        Relay
+                                        {% else %}
+                                        Sensor
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ device.pin }}</td>
+                                    <td>
+                                        <a href="#" class="edit-btn" data-id="{{ device.id }}"
+                                            data-name="{{ device.name }}" data-type="{{ device.type }}"
+                                            data-pin="{{ device.pin }}" data-unit="{{ device.unit }}">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+
+                                        <a href="#" class="delete-btn"
+                                            onclick="removeDevice('{{ device.pin }}', '{{ device.api_key }}')">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for adding device -->
+<div class="modal fade" id="CreateFormModalDevice" tabindex="-1" aria-labelledby="FormModalLabelDevice"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="FormModalLabelDevice">Thêm thiết bị</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="create-form-device" action="{% url 'add_device' %}" method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="add_name" class="col-form-label">Tên :</label>
+                        <input type="text" class="form-control" name="name" id="add_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_van_status" class="col-form-label">Loại thiết bị:</label>
+                        <select class="form-select" name="type" id="edit_van_status">
+                            <option value="1">Relay</option>
+                            <option value="2">Cảm biến</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="device_value" class="col-form-label">Giá trị ảo:</label>
+                        <select class="form-control" name="pin" id="device_value" required>
+                            {% for i in available_pins %}
+                            <option value="{{ i }}">{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="unit" class="col-form-label">Đơn vị :</label>
+                        <input type="text" class="form-control" name="unit" id="unit" required>
+                    </div>
+                </form>
+            </div>
+
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-warning" id="submit-form-device">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal for editing device -->
+<!-- Modal for editing device -->
+<div class="modal fade" id="EditFormModalDevice" tabindex="-1" aria-labelledby="FormModalLabelEditDevice"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="FormModalLabelEditDevice">Chỉnh sửa thiết bị</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-form-device" action="{% url 'device_edit' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" id="edit_device_id">
+                    <div class="mb-3">
+                        <label for="edit_name" class="col-form-label">Tên :</label>
+                        <input type="text" class="form-control" name="name" id="edit_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_type" class="col-form-label">Loại thiết bị:</label>
+                        <select class="form-select" name="type" id="edit_type">
+                            <option value="1">Relay</option>
+                            <option value="2">Cảm biến</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_value" class="col-form-label">Giá trị ảo:</label>
+                        <select class="form-control" name="pin" id="edit_value" required>
+                            {% for i in available_pins %}
+                            <option value="{{ i }}">{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_unit" class="col-form-label">Đơn vị :</label>
+                        <input type="text" class="form-control" name="unit" id="edit_unit" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-warning" id="submit-edit-form-device">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.edit-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                // Lấy dữ liệu từ thuộc tính data-*
+                const id = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+                const type = this.getAttribute('data-type');
+                const pin = this.getAttribute('data-pin');
+                const unit = this.getAttribute('data-unit');
+
+                // In ra các giá trị để kiểm tra
+                console.log("ID: ", id);
+                console.log("Name: ", name);
+                console.log("Status: ", status);
+                console.log("Pin: ", pin);
+                console.log("Unit: ", unit);
+
+                // Điền dữ liệu vào form chỉnh sửa
+                document.getElementById('edit_device_id').value = id;
+                document.getElementById('edit_name').value = name;
+                // Cập nhật giá trị cho loại thiết bị
+                const typeSelect = document.getElementById('edit_type');
+                for (let i = 0; i < typeSelect.options.length; i++) {
+                    if (typeSelect.options[i].value === type) {
+                        typeSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+                // Cập nhật giá trị cho giá trị ảo
+                const valueSelect = document.getElementById('edit_value');
+                let optionExists = false;
+
+                // Kiểm tra xem giá trị pin đã có trong các tùy chọn chưa
+                for (let i = 0; i < valueSelect.options.length; i++) {
+                    if (valueSelect.options[i].value === pin) {
+                        valueSelect.selectedIndex = i;
+                        optionExists = true;
+                        break;
+                    }
+                }
+
+                // Nếu giá trị pin không có trong các tùy chọn, thêm nó vào
+                if (!optionExists) {
+                    const newOption = document.createElement('option');
+                    newOption.value = pin;
+                    newOption.text = pin; // Hoặc bạn có thể sử dụng một tên phù hợp hơn
+                    valueSelect.add(newOption);
+                    valueSelect.value = pin; // Đặt giá trị mới làm giá trị được chọn
+                }
+
+                document.getElementById('edit_unit').value = unit;
+
+                // Hiển thị modal chỉnh sửa
+                new bootstrap.Modal(document.getElementById('EditFormModalDevice')).show();
+            });
+        });
+
+        document.getElementById('submit-edit-form-device').addEventListener('click', function () {
+            document.getElementById('edit-form-device').submit();
+        });
+    });
+
+    window.removeDevice = function (pin, apiKey) {
+        if (confirm('Bạn có chắc chắn muốn xóa mục này?')) {
+            // Tạo URL cho yêu cầu xóa
+            var url = `/delete_device/${pin}/`;
+
+            fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'  // Lấy token CSRF từ template
+                },
+                body: JSON.stringify({
+                    'api_key': apiKey  // Gửi api_key nếu cần thiết
+                })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // Xóa thành công
+                        location.reload();  // Tải lại trang hoặc cập nhật giao diện
+                    } else {
+                        alert('Xóa thất bại!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Xóa thất bại!');
+                });
+        }
+    };
+
+    flatpickr(".flatpickr-time", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        static: true,
+        minuteIncrement: 1
+    });
+
+    document.getElementById('submit-form-device').addEventListener('click', function () {
+        document.getElementById('create-form-device').submit();
+    });
+
+</script>
+{% endblock javascripts %}

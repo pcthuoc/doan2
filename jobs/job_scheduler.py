@@ -53,29 +53,28 @@ def start_scheduler():
    
 
 def schedule_complete_event():
-    print('---task hen gio')
+    #print('---task hen gio')
     # Auto start event
     epoch_time_now = int((datetime.now() - datetime(1970, 1, 1)).total_seconds())
-    print('Time: ', epoch_time_now)
+    #print('Time: ', epoch_time_now)
     check_hengio_tasks()
 
 def schedule_van_auto():
-    print('---task van')
+    #print('---task van')
     # Auto start event
     epoch_time_now = int((datetime.now() - datetime(1970, 1, 1)).total_seconds())
-    print('Time: ', epoch_time_now)
+    #print('Time: ', epoch_time_now)
     auto_van_task()
 def schedule_interval_auto():
-    print('---task auto')
+    #print('---task auto')
     # Auto start event
     epoch_time_now = int((datetime.now() - datetime(1970, 1, 1)).total_seconds())
-    print('Time: ', epoch_time_now)
+   # print('Time: ', epoch_time_now)
     check_auto_tasks()
 
 def schedule_interval_pump_event():
-    print('---Start interval pump scheduler')
+    #print('---Start interval pump scheduler')
     # Auto start event
-    epoch_time_now = int((datetime.now() - datetime(1970, 1, 1)).total_seconds())
-    print('Time: ', epoch_time_now)
+   # epoch_time_now = int((datetime.now() - datetime(1970, 1, 1)).total_seconds())
     auto_pump_task()
 

@@ -27,4 +27,4 @@ with open('1_tem.csv', 'w', newline='') as csvfile:
     csvwriter.writerow(['api_key', 'pin', 'name', 'value', 'date'])
     csvwriter.writerows(data)
 
-print(f"Generated {len(data)} rows of data")
+

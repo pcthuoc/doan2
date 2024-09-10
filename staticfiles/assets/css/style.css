@@ -10993,7 +10993,6 @@ body:not(.minimenu) .pc-sidebar .pc-submenu {
     overflow: auto !important; } }
 
 .navbar-content {
-  width: 100px;
   position: relative; }
 
 .ps__rail-y {

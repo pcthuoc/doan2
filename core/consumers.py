@@ -1,7 +1,7 @@
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
 import json
 
-class NotificationConsumer(AsyncWebsocketConsumer):
+class NotificationConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         self.group_name = 'notifications'
         await self.channel_layer.group_add(
@@ -35,7 +35,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             'message': message
         }))
 
-class RelayConsumer(AsyncWebsocketConsumer):
+class RelayConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         self.group_name = 'updates'
         await self.channel_layer.group_add(
@@ -57,7 +57,7 @@ class RelayConsumer(AsyncWebsocketConsumer):
             pin: value
         }))
 
-class SensorConsumer(AsyncWebsocketConsumer):
+class SensorConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         self.group_name = 'updates'
         await self.channel_layer.group_add(

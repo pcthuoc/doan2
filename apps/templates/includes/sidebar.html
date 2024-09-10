@@ -1,38 +1,41 @@
 <!-- [ navigation menu ] start -->
 <nav class="pc-sidebar ">
-	<div class="navbar-wrapper">
-		<div class="m-header">
-			<a href="index.html" class="b-brand">
-				<!-- ========  change your logo here ============ -->
-				<img src="/static/assets/images/logo.svg" alt="" class="logo logo-lg">
-				<img src="/static/assets/images/logo-sm.svg" alt="" class="logo logo-sm">
-			</a>
-		</div>
-		<div class="navbar-content">
-			<ul class="pc-navbar">
-
-				<li class="pc-item">
-					<a href="/" class="pc-link "><span class="pc-micon"><i
-								class="material-icons-two-tone">home</i></span><span
-							class="pc-mtext">Home</span></a>
-				</li>
-
-
-				<li class="pc-item">
-					<a href="/scene" class="pc-link "><span class="pc-micon"><i
-								class="material-icons-two-tone">settings</i></span><span
-							class="pc-mtext">Quản lý tự động</span></a>
-				</li>
-				<li class="pc-item">
-					<a href="/chart" class="pc-link "><span class="pc-micon"><i
-								class="material-icons-two-tone">insert_chart</i></span><span
-							class="pc-mtext">Dữ liệu biểu đồ</span></a>
-				</li>
-
-
-			</ul>
-
-		</div>
-	</div>
+    <div class="navbar-wrapper">
+        <div class="m-header">
+            <a href="index.html" class="b-brand">
+                <!-- ========  change your logo here ============ -->
+                <img src="/static/assets/images/logo.svg" alt="" class="logo logo-lg">
+                <img src="/static/assets/images/logo-sm.svg" alt="" class="logo logo-sm">
+            </a>
+        </div>
+        <div class="navbar-content">
+            <ul class="pc-navbar">
+                <li class="pc-item">
+                    <a href="/" class="pc-link "><span class="pc-micon"><i class="material-icons-two-tone">home</i></span><span class="pc-mtext">Home</span></a>
+                </li>
+                <li class="pc-item"></li>
+                    <a href="/listdevice" class="pc-link "><span class="pc-micon"><i class="material-icons-two-tone">settings</i></span><span class="pc-mtext">Quản lý thiết bị</span></a>
+                </li>
+                <!-- <li class="pc-item">
+                    <a href="/scene" class="pc-link "><span class="pc-micon"><i class="material-icons-two-tone">settings</i></span><span class="pc-mtext">Quản lý tự động</span></a>
+                </li>
+                <li class="pc-item">
+                    <a href="/chart" class="pc-link "><span class="pc-micon"><i class="material-icons-two-tone">insert_chart</i></span><span class="pc-mtext">Dữ liệu biểu đồ</span></a>
+                </li> -->
+                <!-- New user info and logout section -->
+                <li class="pc-item user-info">
+                    <a href="#" class="pc-link">
+                        <span class="pc-mtext">Chào, {{ user.username }}</span>
+                        <span class="logout-btn">
+                            <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn logout-btn">Đăng Xuất</button>
+                            </form>
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
 </nav>
 <!-- [ navigation menu ] end -->

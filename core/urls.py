@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from core import consumers
 from datas import views as datas_views  
+from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('update/<str:api_key>/<str:pin>/', datas_views.update_value, name='update_value'),  #  http://.112.130:8000/update/TEY8OO5iafAV96gRKcZohbO6ED/V8/?value=10
     path('update_sensor/<str:api_key>/<str:pin>/', datas_views.update_sensor, name='update_value'),
@@ -10,8 +11,7 @@ urlpatterns = [
     path('getall/', datas_views.get_all_values, name='get_all_values'),  
     path('admin/', admin.site.urls),          
     path("", include("apps.home.urls")) ,
- 
-
-
+    path('login/', auth_views.LoginView.as_view(), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
                 
 ]

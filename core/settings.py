@@ -7,6 +7,14 @@ import os
 from decouple import config
 from unipath import Path
 
+# settings.py
+
+MQTT_BROKER_HOST = 'mqttbroker.io.vn'
+MQTT_BROKER_PORT = 40121  # Cổng TCP
+MQTT_TOPIC = 'API/#'     # Subscribe vào tất cả các topic dưới 'API/'
+MQTT_USERNAME = 'pcthuocqt'
+MQTT_PASSWORD = 'thuocadmin'
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = Path(__file__).parent
 CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -16,10 +24,11 @@ SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_1122')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
-
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # load production server from .env
 ALLOWED_HOSTS        = ['*']
-
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/login'
 # Application definition
 
 INSTALLED_APPS = [
@@ -39,7 +48,8 @@ INSTALLED_APPS = [
     'import_export',
     'hengio',
     'jobs',
-    'auto'
+    'auto',
+    'mqtt_app',
 ]
 
 MIDDLEWARE = [
@@ -51,8 +61,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.Middleware.RedirectMiddleware',
   
 ]
+AUTH_USER_MODEL = 'auth.User'
+
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 ASGI_APPLICATION = "core.asgi.application"
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
@@ -66,13 +79,13 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-             "hosts": [('0.0.0.0', 6379)],
+                    # "hosts": [('0.0.0.0', 6379)],
+            "hosts": [("redis", 6379)],
         },
     },
 }
 
-LOGIN_REDIRECT_URL = "home"  # Route defined in home/urls.py
-LOGOUT_REDIRECT_URL = "home"  # Route defined in home/urls.py
+
 TEMPLATE_DIR = os.path.join(CORE_DIR, "apps/templates")  # ROOT dir for templates
 
 TEMPLATES = [
@@ -141,3 +154,19 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(CORE_DIR, 'apps/static'),
 )
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+    },
+}

@@ -1,4 +1,5 @@
 Django==4.2.13
+paho-mqtt
 celery
 gunicorn
 channels
@@ -12,4 +13,10 @@ django-multiselectfield
 daphne
 django-import-export
 whitenoise
+paho-mqtt
+apscheduler
+requests
+python-decouple
 drf-yasg[validation]
+paho-mqtt
+

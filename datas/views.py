@@ -5,44 +5,46 @@ from datas.models import Data
 from devices.models import Device 
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-
-
+from mqtt_app.mqtt_client import publish_message  # Sửa tên hàm nếu cần
 
 def update_value(request, api_key, pin):
     api_key = str(api_key)
     pin = str(pin)
     
     try:
+        # Tìm thiết bị dựa trên api_key và pin
         device = get_object_or_404(Device, api_key__api_key=api_key, pin=pin)
         value = request.GET.get('value')
         
         if value:
+            # Cập nhật giá trị thiết bị
             device.value = value
             device.save()
-            
+
+            # Gửi thông báo qua MQTT
+            topic = f"API/{api_key}/{pin}/"
+            payload = {
+                'value': value,
+                'event_type': 'update'
+            }
+            publish_message(topic, payload)
+
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)(
-                    'updates',  
-                    {
-                        'type': 'send_update',
-                        'pin': device.pin,
-                        'value': device.value
-                    }
-                )
-            async_to_sync(channel_layer.group_send)(
-                    'notifications',  
-                    {
-                        'type': 'send_notification',
-                        'message': "ghihihih"
-                    }
-                )
-            return HttpResponse("ok")
+                'notifications',
+                {
+                    'type': 'send_notification',
+                    'message': f"Value updated to {value} for device with pin {pin}"
+                }
+            )
+            
+            return HttpResponse("Value updated successfully")
         else:
             return HttpResponse("No value provided.", status=400)
     except Http404:
         return HttpResponse("Device not found.", status=404)
-    
-
+    except Exception as e:
+        return HttpResponse(f"An error occurred: {str(e)}", status=500)
 def update_sensor(request, api_key, pin):
     api_key = str(api_key)
     pin = str(pin)
@@ -57,6 +59,13 @@ def update_sensor(request, api_key, pin):
             device.value = value
             device.save()
             channel_layer = get_channel_layer()
+            # Gửi thông báo qua MQTT
+            topic = f"API/{api_key}/{pin}/"
+            payload = {
+                'value': value,
+                'event_type': 'update'
+            }
+            publish_message(topic, payload)
 
             async_to_sync(channel_layer.group_send)(
                     'notifications',  
@@ -82,6 +91,7 @@ def update_sensor(request, api_key, pin):
 
 def update_multi(request):
     if request.method == 'GET':
+        mess = ""
         try:
             query_params = request.GET.dict()
             pin_value_pairs = [(key, value) for key, value in query_params.items() if key.startswith('V')]
@@ -90,15 +100,28 @@ def update_multi(request):
                 device.value = value
                 device.save()
                 Data.objects.create(api_key=device.api_key.api_key, pin=pin, name=device.name, value=value,date=timezone.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                # Gửi thông báo qua MQTT
+                topic = f"API/{api_key}/{pin}/"
+                payload = {
+                    'value': value,
+                    'event_type': 'update'
+                }
+                publish_message(topic, payload)
+              
+                if(device.pin == "V0" and float(device.value) >= 2000):
+                        mess = "on_buzzer"
+                if(device.pin == "V0" and float(device.value) < 2000):
+                        mess = "off_buzzer" 
+                    
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)(
                     'notifications',  
                     {
                         'type': 'send_notification',
-                        'message': "ghihihih" 
+                        'message': mess, 
                     }
                 )
-       
+
             return JsonResponse({'message': 'ok'})
         except Exception as e:
    

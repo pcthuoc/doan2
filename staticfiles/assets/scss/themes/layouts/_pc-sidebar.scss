@@ -410,5 +410,43 @@ body:not(.minimenu) {
         }
     }
 }
+/* Add CSS for user info and logout button */
+.user-info {
+    margin-top: auto;
+    border-top: 1px solid #ddd;
+    padding-top: 1rem;
+    text-align: center;
+}
+
+.user-info .pc-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+}
+
+.user-info .pc-mtext {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.logout-btn {
+    background-color: #f44336;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1rem;
+    margin: 4px 2px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.logout-btn:hover {
+    background-color: #c62828;
+}
 
 // Sidebar css end

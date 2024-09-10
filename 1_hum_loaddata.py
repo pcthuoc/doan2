@@ -9,8 +9,8 @@ end_date = datetime.now(time_zone)
 start_date = end_date - timedelta(days=4)
 time_interval = timedelta(minutes=5)
 api_key = 'TEY8OO5iafAV96gRKcZohbO6ED'
-pin = 'V7'
-name = 'sensor_temp'
+pin = 'V1'
+name = 'Nhiệt độ'
 temperature_range = (25.0, 27.0)
 
 # Generate data
